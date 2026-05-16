@@ -49,7 +49,7 @@ body.dark #screen-auth{background:linear-gradient(135deg,#0a0e17 0%,#131826 50%,
 .country-selector{position:relative;flex-shrink:0;width:130px;}
 .country-selector-trigger{width:100%;padding:0.65rem 0.5rem;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-input);color:var(--text);font-size:0.9rem;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:border .2s;}
 .country-selector-trigger:focus,.country-selector.open .country-selector-trigger{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow);}
-.country-dropdown{position:absolute;top:100%;left:0;z-index:100;width:280px;max-height:260px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);box-shadow:0 8px 24px rgba(0,0,0,0.4);display:none;flex-direction:column;overflow:hidden;margin-top:4px;backdrop-filter:blur(12px);}
+.country-dropdown{position:absolute;top:100%;left:0;z-index:100;width:280px;max-height:260px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);box-shadow:0 8px 24px rgba(0,0,0,0.4);display:none;flex-direction:column;overflow:hidden;margin-top:4px;}
 .country-selector.open .country-dropdown{display:flex;}
 .country-search{padding:0.5rem;border-bottom:1px solid var(--border);flex-shrink:0;}
 .country-search input{width:100%;padding:0.4rem 0.6rem;border:1px solid var(--border);border-radius:4px;background:var(--bg-input);color:var(--text);font-size:0.85rem;outline:none;}
@@ -1499,6 +1499,19 @@ async function loadProfile() {
 function showAuthScreen() {
   document.getElementById('screen-auth').style.display = 'flex';
   document.getElementById('screen-app').style.display = 'none';
+  // Reset login button state
+  const loginBtn = document.getElementById('btn-login');
+  const loginSpinner = document.getElementById('login-spinner');
+  if (loginBtn) loginBtn.disabled = false;
+  if (loginSpinner) loginSpinner.style.display = 'none';
+  // Reset register button state
+  const regBtn = document.getElementById('btn-register');
+  const regSpinner = document.getElementById('register-spinner');
+  if (regBtn) regBtn.disabled = false;
+  if (regSpinner) regSpinner.style.display = 'none';
+  // Show login form, hide register form
+  document.getElementById('login-form').style.display = 'block';
+  document.getElementById('register-form').style.display = 'none';
 }
 function showAppScreen() {
   document.getElementById('screen-auth').style.display = 'none';
