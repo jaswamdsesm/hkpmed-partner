@@ -790,16 +790,16 @@ const i18n = {
     uploadSuccess:'Upload successful!',
     deleteSuccess:'Deleted successfully!',
     confirmDeactivate:'Confirm deactivate this relation?',
-    amountCNY:'Amount(CNY)',
+    amountCNY:'Amount(USD)',
     refChainLabel:'Your Referrer',
     orderNo:'Order No.',
     customer:'Customer',
     date:'Date',
     status:'Status',
     actions:'Actions',
-    goodsCNY:'Goods(CNY)',
-    handlingCNY:'Handling(CNY)',
-    netCNY:'Net(CNY)',
+    goodsUSD:'Goods(USD)',
+    handlingUSD:'Handling(USD)',
+    netUSD:'Net(USD)',
     ordersCount:'Orders',
     receipts:'Receipts',
     uploaded:'Uploaded',
@@ -914,16 +914,16 @@ const i18n = {
     uploadSuccess:'上传成功！',
     deleteSuccess:'删除成功！',
     confirmDeactivate:'确认停用此推荐关系？',
-    amountCNY:'金额(人民币)',
+    amountCNY:'金额(美元)',
     refChainLabel:'我的推荐人',
     orderNo:'订单号',
     customer:'客户',
     date:'日期',
     status:'状态',
     actions:'操作',
-    goodsCNY:'商品金额(元)',
-    handlingCNY:'手续费(元)',
-    netCNY:'净额(元)',
+    goodsUSD:'商品金额(美元)',
+    handlingUSD:'手续费(美元)',
+    netUSD:'净额(美元)',
     ordersCount:'订单',
     receipts:'凭证',
     uploaded:'上传于',
@@ -1586,7 +1586,11 @@ async function renderDashboard() {
   const myReferrals = allRelations.filter(r => (r.referrer_customer_phone||'') === phone);
   const referredNames = new Set(myReferrals.map(r => (r.referred_customer_name||'').trim().toLowerCase()));
   const myOrders = allOrders.filter(o => referredNames.has((o.customer_name||'').trim().toLowerCase()));
-  const totalAmount = myOrders.reduce((s,o) => s + ((parseFloat(o.goods_cny)||0) - (parseFloat(o.handling_cny)||0)), 0);
+  const totalAmountUSD = myOrders.reduce((s,o) => {
+    const netCNY = (parseFloat(o.goods_cny)||0) - (parseFloat(o.handling_cny)||0);
+    const cnyRate = parseFloat(o.cny_exchange_rate) || 7.25;
+    return s + netCNY / cnyRate;
+  }, 0);
 
   document.getElementById('dash-stats').innerHTML = `
     <div class="stat-card bg-accent">
@@ -1602,7 +1606,7 @@ async function renderDashboard() {
     <div class="stat-card bg-warning">
       <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
       <div class="stat-label">${t('amountCNY')}</div>
-      <div class="stat-value">¥${totalAmount.toFixed(2)}</div>
+      <div class="stat-value">$${totalAmountUSD.toFixed(2)}</div>
     </div>
   `;
 
@@ -1613,7 +1617,9 @@ async function renderDashboard() {
     const name = (o.customer_name||'--').trim();
     if (!custMap[name]) custMap[name] = { count: 0, total: 0 };
     custMap[name].count++;
-    custMap[name].total += (parseFloat(o.goods_cny)||0) - (parseFloat(o.handling_cny)||0);
+    const netCNY = (parseFloat(o.goods_cny)||0) - (parseFloat(o.handling_cny)||0);
+    const cnyRate = parseFloat(o.cny_exchange_rate) || 7.25;
+    custMap[name].total += netCNY / cnyRate;
   });
   const custList = Object.entries(custMap).sort((a,b) => b[1].total - a[1].total).slice(0, 10);
 
@@ -1630,7 +1636,7 @@ async function renderDashboard() {
             ${custList.map(([name, d]) => `<tr>
               <td>${esc(name)}</td>
               <td>${d.count}</td>
-              <td class="font-semibold">¥${d.total.toFixed(2)}</td>
+              <td class="font-semibold">$${d.total.toFixed(2)}</td>
             </tr>`).join('')}
           </tbody>
         </table>
@@ -1658,7 +1664,9 @@ function renderOrders() {
     const name = (o.customer_name||'--').trim();
     if (!custMap[name]) custMap[name] = { count: 0, total: 0 };
     custMap[name].count++;
-    custMap[name].total += (parseFloat(o.goods_cny)||0) - (parseFloat(o.handling_cny)||0);
+    const netCNY = (parseFloat(o.goods_cny)||0) - (parseFloat(o.handling_cny)||0);
+    const cnyRate = parseFloat(o.cny_exchange_rate) || 7.25;
+    custMap[name].total += netCNY / cnyRate;
   });
 
   document.getElementById('orders-thead').innerHTML = `<tr>
@@ -1669,7 +1677,7 @@ function renderOrders() {
     .map(([name, d]) => `<tr>
       <td>${esc(name)}</td>
       <td>${d.count}</td>
-      <td class="font-semibold">¥${d.total.toFixed(2)}</td>
+      <td class="font-semibold">$${d.total.toFixed(2)}</td>
     </tr>`).join('');
 }
 
@@ -1701,7 +1709,11 @@ function renderReferrals() {
   const myReferrals = allRelations.filter(r => (r.referrer_customer_phone||'') === phone);
   const referredNames = new Set(myReferrals.map(r => (r.referred_customer_name||'').trim().toLowerCase()));
   const myOrders = allOrders.filter(o => referredNames.has((o.customer_name||'').trim().toLowerCase()));
-  const totalAmount = myOrders.reduce((s,o) => s + ((parseFloat(o.goods_cny)||0) - (parseFloat(o.handling_cny)||0)), 0);
+  const totalAmountUSD = myOrders.reduce((s,o) => {
+    const netCNY = (parseFloat(o.goods_cny)||0) - (parseFloat(o.handling_cny)||0);
+    const cnyRate = parseFloat(o.cny_exchange_rate) || 7.25;
+    return s + netCNY / cnyRate;
+  }, 0);
 
 
 ;
@@ -1712,12 +1724,16 @@ function renderReferrals() {
   document.getElementById('ref-tbody').innerHTML = myReferrals.map(r => {
     const name = (r.referred_customer_name||'').trim().toLowerCase();
     const cOrders = allOrders.filter(o => (o.customer_name||'').trim().toLowerCase() === name);
-    const cAmount = cOrders.reduce((s,o) => s + ((parseFloat(o.goods_cny)||0)-(parseFloat(o.handling_cny)||0)), 0);
+    const cAmountUSD = cOrders.reduce((s,o) => {
+      const netCNY = (parseFloat(o.goods_cny)||0) - (parseFloat(o.handling_cny)||0);
+      const cnyRate = parseFloat(o.cny_exchange_rate) || 7.25;
+      return s + netCNY / cnyRate;
+    }, 0);
     return `<tr>
       <td>${esc(r.referred_customer_name||'--')}</td>
       <td>${esc(r.referred_customer_phone||'--')}</td>
       <td>${cOrders.length}</td>
-      <td>¥${cAmount.toFixed(2)}</td>
+      <td>$${cAmountUSD.toFixed(2)}</td>
       <td>${esc(fmtCN(r.created_at))}</td>
     </tr>`;
   }).join('');
@@ -1839,11 +1855,13 @@ function renderAdminReceipts() {
     return;
   }
   tbody.innerHTML = relOrders.map(o => {
-    const net = ((parseFloat(o.goods_cny)||0) - (parseFloat(o.handling_cny)||0)).toFixed(2);
+    const netCNY = (parseFloat(o.goods_cny)||0) - (parseFloat(o.handling_cny)||0);
+    const cnyRate = parseFloat(o.cny_exchange_rate) || 7.25;
+    const netUSD = (netCNY / cnyRate).toFixed(2);
     return `<tr>
       <td>${esc(o.order_no||'--')}</td>
       <td>${esc(o.customer_name||'--')}</td>
-      <td>¥${net}</td>
+      <td>$${netUSD}</td>
       <td id="receipt-cell-${o.id}"><span class="text-muted">${t('loading')}</span></td>
       <td>
         <button class="btn btn-sm btn-outline" onclick="openUploadReceipt('${o.id}','${esc(o.order_no||'')}')">${t('uploadReceipt')}</button>
