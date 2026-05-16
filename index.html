@@ -685,6 +685,32 @@ body.dark .panel:hover{box-shadow:0 4px 20px rgba(0,0,0,0.3);}
   </div>
 </div>
 
+<!-- Reset Password Modal -->
+<div class="modal-overlay" id="modal-reset-pwd">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header">
+      <h3 id="reset-pwd-title">Reset Password</h3>
+      <button class="modal-close" onclick="closeModal('modal-reset-pwd')"><svg><use href="#icon-close"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div id="reset-pwd-info" style="font-size:0.9rem;color:var(--text2);margin-bottom:1rem"></div>
+      <div id="reset-pwd-error" class="text-danger" style="display:none;font-size:0.85rem;margin-bottom:0.75rem"></div>
+      <div class="form-group">
+        <label id="lbl-reset-pwd">New Password</label>
+        <input type="password" id="reset-pwd-input" placeholder="" autocomplete="new-password">
+      </div>
+      <div class="form-group">
+        <label id="lbl-reset-pwd-confirm">Confirm Password</label>
+        <input type="password" id="reset-pwd-confirm" placeholder="" autocomplete="new-password">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-reset-pwd')" style="color:var(--text2)">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmResetPassword()" id="btn-reset-pwd">Reset</button>
+    </div>
+  </div>
+</div>
+
 <!-- Toast Container -->
 <div class="toast-container" id="toast-container"></div>
 
@@ -816,6 +842,14 @@ const i18n = {
     roleDistributor:'Distributor',
     enable:'Enable',
     disable:'Disable',
+    resetPwd:'Reset Password',
+    resetPwdTitle:'Reset Password',
+    resetPwdNew:'New Password',
+    resetPwdConfirm:'Confirm Password',
+    resetPwdMismatch:'Passwords do not match.',
+    resetPwdTooShort:'Password must be at least 6 characters.',
+    resetPwdSuccess:'Password reset successfully.',
+    resetPwdFailed:'Failed to reset password.',
     name:'Name',
     created:'Created',
     receiptCount:'receipt(s)',
@@ -940,6 +974,14 @@ const i18n = {
     roleDistributor:'分销商',
     enable:'启用',
     disable:'禁用',
+    resetPwd:'重置密码',
+    resetPwdTitle:'重置密码',
+    resetPwdNew:'新密码',
+    resetPwdConfirm:'确认密码',
+    resetPwdMismatch:'两次密码不一致。',
+    resetPwdTooShort:'密码至少需要6位。',
+    resetPwdSuccess:'密码重置成功。',
+    resetPwdFailed:'密码重置失败。',
     name:'姓名',
     created:'创建时间',
     receiptCount:'张凭证',
@@ -1971,7 +2013,8 @@ function renderAdminDistributors() {
     <td><span class="badge ${p.role==='admin'?'badge-blue':'badge-green'}">${p.role==='admin'?t('roleAdmin'):t('roleDistributor')}</span></td>
     <td><span class="badge ${p.status==='active'?'badge-green':'badge-red'}">${p.status==='active'?t('relActive'):t('relInactive')}</span></td>
     <td>${esc(fmtCN(p.created_at))}</td>
-    <td>
+    <td style="white-space:nowrap">
+      <button class="btn btn-sm btn-primary" onclick="openResetPwdModal('${p.id}','${esc(p.real_name||'--')}','${esc(p.phone||'--')}')" style="margin-right:4px">${t('resetPwd')}</button>
       <button class="btn btn-sm ${p.status==='active'?'btn-danger':'btn-primary'}" onclick="toggleDistributorStatus('${p.id}','${p.status==='active'?'disabled':'active'}')">
         ${p.status==='active'?t('disable'):t('enable')}
       </button>
@@ -1987,6 +2030,55 @@ async function toggleDistributorStatus(id, newStatus) {
     loadAllData();
   } catch(err) {
     showToast(err.message, 'error');
+  }
+}
+
+let _resetPwdTargetId = null;
+function openResetPwdModal(id, name, phone) {
+  _resetPwdTargetId = id;
+  document.getElementById('reset-pwd-info').textContent = `${name} (${phone})`;
+  document.getElementById('reset-pwd-input').value = '';
+  document.getElementById('reset-pwd-confirm').value = '';
+  document.getElementById('reset-pwd-error').style.display = 'none';
+  document.getElementById('reset-pwd-title').textContent = t('resetPwdTitle');
+  document.getElementById('lbl-reset-pwd').textContent = t('resetPwdNew');
+  document.getElementById('lbl-reset-pwd-confirm').textContent = t('resetPwdConfirm');
+  document.getElementById('reset-pwd-input').placeholder = t('resetPwdNew');
+  document.getElementById('reset-pwd-confirm').placeholder = t('resetPwdConfirm');
+  document.getElementById('btn-reset-pwd').textContent = t('resetPwd');
+  openModal('modal-reset-pwd');
+}
+
+async function confirmResetPassword() {
+  const pwd = document.getElementById('reset-pwd-input').value;
+  const confirm = document.getElementById('reset-pwd-confirm').value;
+  const errEl = document.getElementById('reset-pwd-error');
+  errEl.style.display = 'none';
+  if (!pwd || pwd.length < 6) {
+    errEl.textContent = t('resetPwdTooShort');
+    errEl.style.display = 'block';
+    return;
+  }
+  if (pwd !== confirm) {
+    errEl.textContent = t('resetPwdMismatch');
+    errEl.style.display = 'block';
+    return;
+  }
+  const btn = document.getElementById('btn-reset-pwd');
+  btn.disabled = true;
+  try {
+    const { data, error } = await _supabase.rpc('admin_reset_password', {
+      p_target_id: _resetPwdTargetId,
+      p_new_password: pwd
+    });
+    if (error) throw error;
+    closeModal('modal-reset-pwd');
+    showToast(t('resetPwdSuccess'), 'success');
+  } catch(err) {
+    errEl.textContent = t('resetPwdFailed') + ' ' + (err.message || '');
+    errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false;
   }
 }
 
