@@ -1,0 +1,2019 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Partner Distribution System</title>
+<style>
+/* ========== CSS Variables (Dark Default) ========== */
+:root,body.light{--bg:#f1f5f9;--bg-card:#ffffff;--bg-card2:#f8fafc;--bg-input:#f1f5f9;--text:#1e293b;--text2:#475569;--text3:#94a3b8;--accent:#2563eb;--accent2:#1d4ed8;--accent-glow:rgba(37,99,235,0.1);--border:#e2e8f0;--border2:#cbd5e1;--success:#16a34a;--warning:#d97706;--danger:#dc2626;--sidebar-bg:#ffffff;--header-bg:rgba(255,255,255,0.9);--shadow:0 4px 24px rgba(0,0,0,0.08);--radius:12px;--radius-sm:8px;}
+body.dark{--bg:#0a0e17;--bg-card:#131826;--bg-card2:#1a2035;--bg-input:#0d1220;--text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;--accent:#3b82f6;--accent2:#2563eb;--accent-glow:rgba(59,130,246,0.15);--border:#1e293b;--border2:#334155;--success:#22c55e;--warning:#f59e0b;--danger:#ef4444;--sidebar-bg:#0d1220;--header-bg:rgba(10,14,23,0.85);--shadow:0 4px 24px rgba(0,0,0,0.3);}
+
+/* ========== Reset ========== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:14px;}
+body{font-family:'Segoe UI','PingFang SC','Microsoft YaHei',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s;}
+a{color:var(--accent);text-decoration:none;}
+input,select,textarea,button{font-family:inherit;font-size:inherit;}
+button{cursor:pointer;border:none;background:none;color:inherit;}
+table{width:100%;border-collapse:collapse;}
+
+/* ========== Utility ========== */
+.hidden{display:none!important;}
+.flex{display:flex;}.items-center{align-items:center;}.gap-2{gap:0.5rem;}.gap-3{gap:0.75rem;}.gap-4{gap:1rem;}.justify-between{justify-content:space-between;}.justify-center{justify-content:center;}.flex-1{flex:1;}.flex-wrap{flex-wrap:wrap;}
+.text-sm{font-size:0.85rem;}.text-xs{font-size:0.75rem;}.text-lg{font-size:1.15rem;}.text-xl{font-size:1.3rem;}.text-2xl{font-size:1.6rem;}.font-bold{font-weight:700;}.font-semibold{font-weight:600;}
+.text-muted{color:var(--text2);}.text-accent{color:var(--accent);}.text-success{color:var(--success);}.text-danger{color:var(--danger);}.text-warning{color:var(--warning);}
+.mt-2{margin-top:0.5rem;}.mt-4{margin-top:1rem;}.mt-6{margin-top:1.5rem;}.mb-2{margin-bottom:0.5rem;}.mb-4{margin-bottom:1rem;}.ml-auto{margin-left:auto;}.p-4{padding:1rem;}.p-6{padding:1.5rem;}
+.rounded{border-radius:var(--radius);}.rounded-sm{border-radius:var(--radius-sm);}
+.overflow-x-auto{overflow-x:auto;}
+.whitespace-nowrap{white-space:nowrap;}
+
+/* ========== Auth Screen ========== */
+#screen-auth{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:1rem;background:linear-gradient(135deg,#e2e8f0 0%,#f1f5f9 50%,#e0f2fe 100%);}
+body.dark #screen-auth{background:linear-gradient(135deg,#0a0e17 0%,#131826 50%,#0d1220 100%);}
+.auth-container{width:100%;max-width:420px;position:relative;}
+.auth-theme-toggle{position:absolute;top:-12px;right:0;background:none;border:1px solid var(--border);border-radius:var(--radius-sm);padding:0.35rem 0.6rem;cursor:pointer;color:var(--text2);font-size:0.85rem;display:flex;align-items:center;gap:0.35rem;transition:all .2s;}
+.auth-theme-toggle:hover{border-color:var(--accent);color:var(--accent);}
+.auth-logo{text-align:center;margin-bottom:2rem;}
+.auth-logo img{height:56px;margin-bottom:0.75rem;object-fit:contain;}
+.auth-logo h1{font-size:1.4rem;font-weight:700;letter-spacing:0.02em;}
+.auth-logo p{color:var(--text2);font-size:0.85rem;margin-top:0.25rem;}
+.auth-card{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:2rem;box-shadow:var(--shadow);}
+.auth-card h2{font-size:1.2rem;font-weight:600;margin-bottom:1.5rem;}
+.form-group{margin-bottom:1rem;}
+.form-group label{display:block;font-size:0.8rem;color:var(--text2);margin-bottom:0.35rem;font-weight:500;}
+.form-group input,.form-group select{width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-input);color:var(--text);font-size:0.9rem;transition:border .2s;}
+.form-group input:focus,.form-group select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow);}
+.phone-group{display:flex;gap:0.5rem;position:relative;}
+.phone-group input[type=tel]{flex:1;}
+.country-selector{position:relative;flex-shrink:0;width:130px;}
+.country-selector-trigger{width:100%;padding:0.65rem 0.5rem;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-input);color:var(--text);font-size:0.9rem;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:border .2s;}
+.country-selector-trigger:focus,.country-selector.open .country-selector-trigger{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow);}
+.country-dropdown{position:absolute;top:100%;left:0;z-index:100;width:280px;max-height:260px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);box-shadow:0 8px 24px rgba(0,0,0,0.4);display:none;flex-direction:column;overflow:hidden;margin-top:4px;backdrop-filter:blur(12px);}
+.country-selector.open .country-dropdown{display:flex;}
+.country-search{padding:0.5rem;border-bottom:1px solid var(--border);flex-shrink:0;}
+.country-search input{width:100%;padding:0.4rem 0.6rem;border:1px solid var(--border);border-radius:4px;background:var(--bg-input);color:var(--text);font-size:0.85rem;outline:none;}
+.country-search input:focus{border-color:var(--accent);}
+.country-list{overflow-y:auto;flex:1;}
+.country-list .country-item{padding:0.4rem 0.6rem;cursor:pointer;font-size:0.85rem;color:var(--text);display:flex;align-items:center;gap:0.4rem;}
+.country-list .country-item:hover,.country-list .country-item.active{background:var(--accent);color:#fff;}
+.country-list .country-item .cc{font-weight:600;min-width:42px;opacity:0.8;}
+.country-list .country-item .cn{opacity:0.9;}
+.country-list .no-result{padding:0.6rem;text-align:center;color:var(--muted);font-size:0.85rem;}
+.btn-primary{width:100%;padding:0.7rem;background:var(--accent);color:#fff;font-weight:600;border-radius:var(--radius-sm);font-size:0.95rem;transition:background .2s,transform .1s;}
+.btn-primary:hover{background:var(--accent2);}
+.btn-primary:active{transform:scale(0.98);}
+.btn-primary:disabled{opacity:0.5;cursor:not-allowed;}
+.auth-switch{text-align:center;margin-top:1.25rem;font-size:0.85rem;color:var(--text2);}
+.auth-switch a{cursor:pointer;font-weight:600;}
+.auth-error{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:var(--danger);padding:0.6rem 0.85rem;border-radius:var(--radius-sm);font-size:0.85rem;margin-bottom:1rem;display:none;}
+.auth-success{background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);color:var(--success);padding:0.6rem 0.85rem;border-radius:var(--radius-sm);font-size:0.85rem;margin-bottom:1rem;display:none;}
+
+/* ========== App Layout ========== */
+#screen-app{position:fixed;inset:0;z-index:100;display:none;flex-direction:column;height:100vh;overflow:hidden;}
+/* Header */
+.header{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0.6rem 1.25rem;background:var(--header-bg);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);height:56px;}
+.header-left{display:flex;align-items:center;gap:0.75rem;}
+.header-logo{display:flex;align-items:center;gap:0.5rem;}
+.header-logo img{height:28px;object-fit:contain;}
+.header-logo span{font-weight:700;font-size:1rem;letter-spacing:0.02em;}
+.header-right{display:flex;align-items:center;gap:0.5rem;}
+.header-btn{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:8px;transition:background .2s;color:var(--text2);}
+.header-btn:hover{background:var(--accent-glow);color:var(--accent);}
+.header-btn svg{width:20px;height:20px;}
+.header-user{display:flex;align-items:center;gap:0.5rem;padding:0.35rem 0.75rem;border-radius:8px;cursor:pointer;transition:background .2s;font-size:0.85rem;}
+.header-user:hover{background:var(--accent-glow);}
+
+/* Layout body */
+.app-body{display:flex;flex:1;overflow:hidden;}
+/* Sidebar */
+.sidebar{width:220px;flex-shrink:0;background:var(--sidebar-bg);border-right:1px solid var(--border);padding:0.75rem 0;overflow-y:auto;transition:transform .3s;}
+.sidebar-item{display:flex;align-items:center;gap:0.65rem;padding:0.6rem 1.25rem;font-size:0.9rem;color:var(--text2);cursor:pointer;transition:background .15s,color .15s;border-left:3px solid transparent;font-weight:500;}
+.sidebar-item:hover{background:var(--accent-glow);color:var(--text);}
+.sidebar-item.active{color:var(--accent);background:var(--accent-glow);border-left-color:var(--accent);font-weight:600;}
+.sidebar-item svg{width:20px;height:20px;flex-shrink:0;}
+.sidebar-section{padding:0.5rem 1.25rem 0.25rem;font-size:0.7rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;font-weight:600;margin-top:0.5rem;}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:90;}
+
+/* Main content */
+.main-content{flex:1;overflow-y:auto;padding:1.5rem;}
+
+/* Mobile bottom nav */
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:100;background:var(--header-bg);backdrop-filter:blur(12px);border-top:1px solid var(--border);padding:0.35rem 0;justify-content:space-around;}
+.bottom-nav-item{display:flex;flex-direction:column;align-items:center;gap:0.15rem;font-size:0.65rem;color:var(--text3);cursor:pointer;padding:0.25rem 0.5rem;border-radius:6px;transition:color .15s;}
+.bottom-nav-item.active{color:var(--accent);}
+.bottom-nav-item svg{width:20px;height:20px;}
+
+/* ========== Page Styles ========== */
+.page{display:none;}.page.active{display:block;}
+.page-title{font-size:1.3rem;font-weight:700;margin-bottom:0.25rem;}
+.page-desc{color:var(--text2);font-size:0.85rem;margin-bottom:1.25rem;}
+
+/* Stat cards */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1.5rem;}
+.stat-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s;}
+.stat-card:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,0.12);}
+.stat-card.bg-accent{background:linear-gradient(135deg,var(--accent),var(--accent2));border-color:transparent;color:#fff;}
+.stat-card.bg-accent .stat-label,.stat-card.bg-accent .stat-label{color:rgba(255,255,255,0.8);}
+.stat-card.bg-accent .stat-value{color:#fff;}
+.stat-card.bg-green{background:linear-gradient(135deg,#16a34a,#22c55e);border-color:transparent;color:#fff;}
+.stat-card.bg-green .stat-label{color:rgba(255,255,255,0.8);}
+.stat-card.bg-warning{background:linear-gradient(135deg,#d97706,#f59e0b);border-color:transparent;color:#fff;}
+.stat-card.bg-warning .stat-label{color:rgba(255,255,255,0.8);}
+.stat-card.bg-purple{background:linear-gradient(135deg,#7c3aed,#a78bfa);border-color:transparent;color:#fff;}
+.stat-card.bg-purple .stat-label{color:rgba(255,255,255,0.8);}
+.stat-card .stat-label{font-size:0.8rem;color:var(--text2);margin-bottom:0.35rem;font-weight:500;}
+.stat-card .stat-value{font-size:1.6rem;font-weight:700;line-height:1.2;}
+.stat-card .stat-icon{position:absolute;top:0.75rem;right:0.75rem;opacity:0.18;pointer-events:none;}
+.stat-card .stat-icon svg{width:36px;height:36px;}
+.stat-card .stat-sub{font-size:0.75rem;color:var(--text3);margin-top:0.25rem;}
+
+/* Panels / Cards */
+.panel{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:1rem;}
+.panel-header{display:flex;align-items:center;justify-content:space-between;padding:0.85rem 1.25rem;border-bottom:1px solid var(--border);}
+.panel-header h3{font-size:0.95rem;font-weight:600;}
+.panel-body{padding:1.25rem;}
+
+/* Tables */
+.data-table{width:100%;}
+.data-table th{text-align:left;padding:0.6rem 0.85rem;font-size:0.75rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;font-weight:600;border-bottom:1px solid var(--border);white-space:nowrap;}
+.data-table td{padding:0.65rem 0.85rem;font-size:0.85rem;border-bottom:1px solid var(--border);vertical-align:middle;}
+.data-table tr:last-child td{border-bottom:none;}
+.data-table tr:hover td{background:var(--accent-glow);}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:0.4rem;padding:0.5rem 1rem;border-radius:var(--radius-sm);font-size:0.85rem;font-weight:500;transition:background .2s,transform .1s;border:1px solid transparent;}
+.btn svg{width:16px;height:16px;}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent);}
+.btn-primary:hover{background:var(--accent2);}
+.btn-outline{background:transparent;color:var(--accent);border-color:var(--accent);}
+.btn-outline:hover{background:var(--accent-glow);}
+.btn-danger{background:rgba(239,68,68,0.1);color:var(--danger);border-color:rgba(239,68,68,0.3);}
+.btn-danger:hover{background:rgba(239,68,68,0.2);}
+.btn-sm{padding:0.35rem 0.7rem;font-size:0.8rem;}
+.btn:disabled{opacity:0.5;cursor:not-allowed;}
+
+/* Badge */
+.badge{display:inline-flex;align-items:center;padding:0.15rem 0.55rem;border-radius:99px;font-size:0.75rem;font-weight:600;}
+.badge-blue{background:var(--accent-glow);color:var(--accent);}
+.badge-green{background:rgba(34,197,94,0.1);color:var(--success);}
+.badge-red{background:rgba(239,68,68,0.1);color:var(--danger);}
+.badge-yellow{background:rgba(245,158,11,0.1);color:var(--warning);}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:200;display:flex;align-items:center;justify-content:center;padding:1rem;opacity:0;pointer-events:none;transition:opacity .2s;}
+.modal-overlay.active{opacity:1;pointer-events:auto;}
+.modal{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.4);transform:translateY(10px);transition:transform .2s;}
+.modal-overlay.active .modal{transform:translateY(0);}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:1px solid var(--border);}
+.modal-header h3{font-size:1.05rem;font-weight:600;}
+.modal-close{width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px;color:var(--text2);transition:background .15s;}
+.modal-close:hover{background:var(--accent-glow);color:var(--text);}
+.modal-body{padding:1.25rem;}
+.modal-footer{padding:1rem 1.25rem;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:0.5rem;}
+
+/* Filter bar */
+.filter-bar{display:flex;flex-wrap:wrap;gap:0.75rem;align-items:center;margin-bottom:1rem;}
+.filter-bar select,.filter-bar input{padding:0.5rem 0.75rem;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-input);color:var(--text);font-size:0.85rem;}
+
+/* Empty state */
+.empty-state{text-align:center;padding:3rem 1rem;color:var(--text3);}
+.empty-state svg{width:48px;height:48px;margin-bottom:1rem;opacity:0.3;}
+.empty-state p{font-size:0.9rem;}
+
+/* Referral chain bar */
+.ref-chain-bar{margin-bottom:1.25rem;}
+.ref-chain-inner{display:flex;align-items:center;gap:0.75rem;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:0.85rem 1.25rem;}
+.ref-chain-label{font-size:0.75rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;white-space:nowrap;}
+.ref-chain-nodes{display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;}
+.ref-chain-node{display:inline-flex;align-items:center;gap:0.35rem;padding:0.3rem 0.7rem;background:var(--accent-glow);color:var(--accent);border-radius:99px;font-size:0.85rem;font-weight:500;}
+.ref-chain-node.mine{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;}
+.ref-chain-node.referrer{background:rgba(139,92,246,0.12);color:#8b5cf6;}
+.ref-chain-arrow{color:var(--text3);font-size:0.85rem;}
+
+/* Panel hover */
+.panel{transition:box-shadow .2s;}
+.panel:hover{box-shadow:0 4px 20px rgba(0,0,0,0.08);}
+body.dark .panel:hover{box-shadow:0 4px 20px rgba(0,0,0,0.3);}
+
+/* Loading spinner */
+.spinner{display:inline-block;width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* Toast */
+.toast-container{position:fixed;top:70px;right:1rem;z-index:300;display:flex;flex-direction:column;gap:0.5rem;}
+.toast{display:flex;align-items:center;gap:0.65rem;padding:0.75rem 1rem;border-radius:var(--radius-sm);font-size:0.85rem;box-shadow:var(--shadow);animation:slideIn .2s ease;min-width:250px;}
+.toast-success{background:#052e16;border:1px solid #166534;color:#4ade80;}
+.toast-error{background:#450a0a;border:1px solid #991b1b;color:#f87171;}
+.toast-info{background:#172554;border:1px solid #1e40af;color:#93c5fd;}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0;}to{transform:translateX(0);opacity:1;}}
+
+/* ========== Responsive ========== */
+@media(max-width:768px){
+  .sidebar{position:fixed;top:0;left:0;bottom:0;z-index:95;transform:translateX(-100%);width:260px;}
+  .sidebar.open{transform:translateX(0);}
+  .sidebar-overlay.active{display:block;}
+  .main-content{padding:1rem 0.75rem 70px;}
+  .bottom-nav{display:flex;}
+  .header-logo span{font-size:0.9rem;}
+  .header-logo span{display:none;}
+  .header{padding:0.6rem 0.75rem;}
+  .header-user{padding:0.3rem 0.4rem;font-size:0.8rem;}
+  .header-user span{display:none;}
+  .header-btn{width:32px;height:32px;}
+  .header-btn svg{width:18px;height:18px;}
+  .stat-grid{grid-template-columns:1fr 1fr;}
+  .page-title{font-size:1.1rem;}
+}
+@media(max-width:480px){
+  .stat-grid{grid-template-columns:1fr;}
+  .auth-container{max-width:100%;}
+}
+</style>
+</head>
+<body class="light">
+
+<!-- ========== SVG Sprite ========== -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+  <symbol id="icon-logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></symbol>
+  <symbol id="icon-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+  <symbol id="icon-dashboard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol>
+  <symbol id="icon-orders" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></symbol>
+  <symbol id="icon-referral" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+  <symbol id="icon-profile" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
+  <symbol id="icon-admin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
+  <symbol id="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></symbol>
+  <symbol id="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></symbol>
+  <symbol id="icon-lang" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></symbol>
+  <symbol id="icon-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></symbol>
+  <symbol id="icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+  <symbol id="icon-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
+  <symbol id="icon-upload" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></symbol>
+  <symbol id="icon-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></symbol>
+  <symbol id="icon-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+  <symbol id="icon-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></symbol>
+  <symbol id="icon-link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></symbol>
+  <symbol id="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
+  <symbol id="icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+  <symbol id="icon-filter" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></symbol>
+  <symbol id="icon-receipt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L6 22"/><path d="M18 2v20"/><line x1="6" y1="6" x2="18" y2="6"/><line x1="6" y1="10" x2="18" y2="10"/><line x1="6" y1="14" x2="14" y2="14"/></symbol>
+  <symbol id="icon-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
+  <symbol id="icon-logout" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol>
+</svg>
+
+<!-- ========== Auth Screen ========== -->
+<div id="screen-auth">
+  <div class="auth-container">
+    <button class="auth-theme-toggle" id="auth-theme-btn" onclick="toggleDarkMode()" title="Toggle theme">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      <span id="auth-theme-text">Light</span>
+    </button>
+    <div class="auth-logo">
+      <img src="logo2.png" alt="HKPepMed Logo">
+      <h1>Partner Distribution System</h1>
+      <p id="auth-subtitle" style="display:none"></p>
+    </div>
+
+    <!-- Login Form -->
+    <div class="auth-card" id="login-card">
+      <h2 id="login-title">Sign In</h2>
+      <div class="auth-error" id="login-error"></div>
+      <div class="auth-success" id="login-success"></div>
+      <form id="login-form" onsubmit="return false;">
+        <div class="form-group">
+          <label id="lbl-login-phone">Phone Number</label>
+          <div class="phone-group">
+            <div class="country-selector" id="login-country-wrap">
+              <div class="country-selector-trigger" tabindex="0"><span class="cs-display">+86 CN</span><span style="opacity:0.5">▾</span></div>
+              <div class="country-dropdown">
+                <div class="country-search"><input type="text" placeholder="Search country / code..." autocomplete="off"></div>
+                <div class="country-list"></div>
+              </div>
+              <input type="hidden" id="login-country-code" value="+86">
+            </div>
+            <input type="tel" id="login-phone" placeholder="13800138000" autocomplete="tel">
+          </div>
+        </div>
+        <div class="form-group">
+          <label id="lbl-login-password">Password</label>
+          <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn-primary" id="btn-login">
+          <span id="login-btn-text">Sign In</span>
+          <span class="spinner" style="display:none" id="login-spinner"></span>
+        </button>
+      </form>
+      <div class="auth-switch">
+        <span id="login-switch-text">Don't have an account?</span>
+        <a onclick="showRegister()" id="login-switch-link">Register</a>
+      </div>
+    </div>
+
+    <!-- Register Form -->
+    <div class="auth-card hidden" id="register-card">
+      <h2 id="register-title">Create Account</h2>
+      <div class="auth-error" id="register-error"></div>
+      <div class="auth-success" id="register-success"></div>
+      <form id="register-form" onsubmit="return false;">
+        <div class="form-group">
+          <label id="lbl-reg-name">Full Name</label>
+          <input type="text" id="reg-name" placeholder="Zhang San" autocomplete="name">
+        </div>
+        <div class="form-group">
+          <label id="lbl-reg-phone">Phone Number</label>
+          <div class="phone-group">
+            <div class="country-selector" id="reg-country-wrap">
+              <div class="country-selector-trigger" tabindex="0"><span class="cs-display">+86 CN</span><span style="opacity:0.5">▾</span></div>
+              <div class="country-dropdown">
+                <div class="country-search"><input type="text" placeholder="Search country / code..." autocomplete="off"></div>
+                <div class="country-list"></div>
+              </div>
+              <input type="hidden" id="reg-country-code" value="+86">
+            </div>
+            <input type="tel" id="reg-phone" placeholder="13800138000" autocomplete="tel">
+          </div>
+        </div>
+        <div class="form-group">
+          <label id="lbl-reg-password">Password</label>
+          <input type="password" id="reg-password" placeholder="at least 6 characters" autocomplete="new-password">
+        </div>
+        <div class="form-group">
+          <label id="lbl-reg-confirm">Confirm Password</label>
+          <input type="password" id="reg-confirm" placeholder="re-enter password" autocomplete="new-password">
+        </div>
+        <button type="submit" class="btn-primary" id="btn-register">
+          <span id="register-btn-text">Create Account</span>
+          <span class="spinner" style="display:none" id="register-spinner"></span>
+        </button>
+      </form>
+      <div class="auth-switch">
+        <span id="register-switch-text">Already have an account?</span>
+        <a onclick="showLogin()" id="register-switch-link">Sign In</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== App Screen ========== -->
+<div id="screen-app">
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <button class="header-btn" id="menu-btn" onclick="toggleSidebar()" style="display:none">
+        <svg><use href="#icon-menu"/></svg>
+      </button>
+      <div class="header-logo">
+        <img src="logo2.png" alt="HKPepMed">
+        <span id="header-app-name">Partner Distribution System</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <button class="header-btn" onclick="toggleLang()" title="Switch Language">
+        <svg><use href="#icon-lang"/></svg>
+      </button>
+      <button class="header-btn" onclick="toggleDarkMode()" title="Toggle Dark Mode">
+        <svg id="darkmode-icon"><use href="#icon-moon"/></svg>
+      </button>
+      <div class="header-user" onclick="navigate('profile')">
+        <svg style="width:18px;height:18px"><use href="#icon-user"/></svg>
+        <span id="header-username">--</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="app-body">
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-item active" data-page="dashboard" onclick="navigate('dashboard')">
+        <svg><use href="#icon-dashboard"/></svg>
+        <span id="nav-dashboard">Dashboard</span>
+      </div>
+      <div class="sidebar-item" data-page="orders" onclick="navigate('orders')">
+        <svg><use href="#icon-orders"/></svg>
+        <span id="nav-orders">My Orders</span>
+      </div>
+      <div class="sidebar-item" data-page="referrals" onclick="navigate('referrals')">
+        <svg><use href="#icon-referral"/></svg>
+        <span id="nav-referrals">My Referrals</span>
+      </div>
+      <div class="sidebar-item" data-page="profile" onclick="navigate('profile')">
+        <svg><use href="#icon-profile"/></svg>
+        <span id="nav-profile">Profile</span>
+      </div>
+
+      <!-- Admin Section -->
+      <div class="sidebar-section" id="admin-section-title" style="display:none">ADMIN</div>
+      <div class="sidebar-item" data-page="admin-relations" id="nav-admin-relations" style="display:none" onclick="navigate('admin-relations')">
+        <svg><use href="#icon-link"/></svg>
+        <span id="nav-admin-rel-text">Distribution Relations</span>
+      </div>
+      <div class="sidebar-item" data-page="admin-receipts" id="nav-admin-receipts" style="display:none" onclick="navigate('admin-receipts')">
+        <svg><use href="#icon-receipt"/></svg>
+        <span id="nav-admin-rcp-text">Order Receipts</span>
+      </div>
+      <div class="sidebar-item" data-page="admin-distributors" id="nav-admin-distributors" style="display:none" onclick="navigate('admin-distributors')">
+        <svg><use href="#icon-admin"/></svg>
+        <span id="nav-admin-dist-text">Manage Distributors</span>
+      </div>
+    </nav>
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Main Content -->
+    <main class="main-content" id="main-content">
+
+      <!-- Page: Dashboard -->
+      <div class="page" id="page-dashboard">
+        <div class="page-title" id="dash-title">Dashboard</div>
+        <div class="page-desc" id="dash-desc">Welcome back! Here's your distribution overview.</div>
+        <div class="stat-grid" id="dash-stats"></div>
+        <div class="panel">
+          <div class="panel-header"><h3 id="dash-recent-title">Recent Referral Orders</h3></div>
+          <div class="panel-body" id="dash-recent-body">
+            <div class="empty-state"><p id="dash-empty">No referral orders yet.</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Page: Orders -->
+      <div class="page" id="page-orders">
+        <div class="page-title" id="orders-title">My Orders</div>
+        <div class="page-desc" id="orders-desc">Orders from your referred customers.</div>
+        <div class="filter-bar" id="orders-filter"></div>
+        <div class="panel">
+          <div class="panel-body p-0">
+            <div class="overflow-x-auto">
+              <table class="data-table" id="orders-table">
+                <thead><tr id="orders-thead"></tr></thead>
+                <tbody id="orders-tbody"></tbody>
+              </table>
+            </div>
+            <div class="empty-state hidden" id="orders-empty">
+              <svg><use href="#icon-orders"/></svg>
+              <p id="orders-empty-text">No orders found.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Page: Referrals -->
+      <div class="page" id="page-referrals">
+        <div class="page-title" id="ref-title">My Referrals</div>
+        <div class="page-desc" id="ref-desc">Customers you have referred.</div>
+
+        <!-- 我的推荐人 -->
+        <div class="ref-chain-bar" id="ref-chain-bar" style="display:none">
+          <div class="ref-chain-inner">
+            <div class="ref-chain-label" id="ref-chain-label"></div>
+            <div class="ref-chain-nodes" id="ref-chain-nodes"></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header"><h3 id="ref-list-title">Referred Customers</h3></div>
+          <div class="panel-body p-0">
+            <div class="overflow-x-auto">
+              <table class="data-table" id="ref-table">
+                <thead><tr id="ref-thead"></tr></thead>
+                <tbody id="ref-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Page: Profile -->
+      <div class="page" id="page-profile">
+        <div class="page-title" id="profile-title">Profile</div>
+        <div class="page-desc" id="profile-desc">Manage your account information.</div>
+        <div class="panel" style="max-width:520px">
+          <div class="panel-body">
+            <div class="form-group">
+              <label id="lbl-prof-name">Full Name</label>
+              <input type="text" id="prof-name" disabled>
+            </div>
+            <div class="form-group">
+              <label id="lbl-prof-phone">Phone</label>
+              <input type="tel" id="prof-phone" disabled>
+            </div>
+            <div class="form-group">
+              <label id="lbl-prof-role">Role</label>
+              <input type="text" id="prof-role" disabled>
+            </div>
+            <div class="form-group">
+              <label id="lbl-prof-password">New Password</label>
+              <input type="password" id="prof-password" placeholder="leave blank to keep current" autocomplete="new-password">
+            </div>
+            <div class="form-group">
+              <label id="lbl-prof-confirm">Confirm New Password</label>
+              <input type="password" id="prof-confirm" placeholder="re-enter new password" autocomplete="new-password">
+            </div>
+            <div class="auth-error" id="profile-error" style="display:none"></div>
+            <div class="auth-success" id="profile-success" style="display:none"></div>
+            <button class="btn btn-primary" onclick="updateProfile()" id="btn-prof-save">
+              <span id="prof-save-text">Save Changes</span>
+            </button>
+            <button class="btn btn-danger mt-4" onclick="logout()" id="btn-logout" style="margin-top:1rem">Sign Out</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Page: Admin Relations -->
+      <div class="page" id="page-admin-relations">
+        <div class="page-title" id="rel-page-title">Distribution Relations</div>
+        <div class="page-desc" id="rel-page-desc">Bind or unbind distributor referral relationships.</div>
+        <div class="filter-bar">
+          <button class="btn btn-primary" onclick="openRelationModal()" id="btn-add-relation">
+            <svg><use href="#icon-plus"/></svg>
+            <span id="rel-add-text">Add Relation</span>
+          </button>
+        </div>
+        <div class="panel">
+          <div class="panel-body p-0">
+            <table class="data-table" id="rel-table">
+              <thead><tr>
+                <th id="rel-th-referrer">Referrer</th>
+                <th id="rel-th-referred">Referred</th>
+                <th id="rel-th-phone">Referred Phone</th>
+                <th id="rel-th-sales">Owner/Sales</th>
+                <th id="rel-th-status">Status</th>
+                <th id="rel-th-actions">Actions</th>
+              </tr></thead>
+              <tbody id="rel-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Page: Admin Receipts -->
+      <div class="page" id="page-admin-receipts">
+        <div class="page-title" id="receipts-page-title">Order Receipts</div>
+        <div class="page-desc" id="receipts-page-desc">Upload and manage order receipts for distributors.</div>
+        <div class="filter-bar" id="receipts-filter"></div>
+        <div class="panel">
+          <div class="panel-body p-0">
+            <table class="data-table" id="receipts-table">
+              <thead><tr>
+                <th id="receipts-th-order">Order No.</th><th id="receipts-th-customer">Customer</th><th id="receipts-th-amount">Amount(CNY)</th><th id="receipts-th-receipts">Receipts</th><th id="receipts-th-actions">Actions</th>
+              </tr></thead>
+              <tbody id="receipts-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Page: Admin Distributors -->
+      <div class="page" id="page-admin-distributors">
+        <div class="page-title" id="dist-page-title">Manage Distributors</div>
+        <div class="page-desc" id="dist-page-desc">View and manage all partner accounts.</div>
+        <div class="panel">
+          <div class="panel-body p-0">
+            <table class="data-table" id="distributors-table">
+              <thead><tr>
+                <th id="dist-th-name">Name</th><th id="dist-th-phone">Phone</th><th id="dist-th-role">Role</th><th id="dist-th-status">Status</th><th id="dist-th-created">Created</th><th id="dist-th-actions">Actions</th>
+              </tr></thead>
+              <tbody id="distributors-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Bottom Nav (Mobile) -->
+  <nav class="bottom-nav" id="bottom-nav">
+    <div class="bottom-nav-item active" data-page="dashboard" onclick="navigate('dashboard')">
+      <svg><use href="#icon-dashboard"/></svg>
+      <span id="navb-dashboard">Home</span>
+    </div>
+    <div class="bottom-nav-item" data-page="orders" onclick="navigate('orders')">
+      <svg><use href="#icon-orders"/></svg>
+      <span id="navb-orders">Orders</span>
+    </div>
+    <div class="bottom-nav-item" data-page="referrals" onclick="navigate('referrals')">
+      <svg><use href="#icon-referral"/></svg>
+      <span id="navb-referrals">Referrals</span>
+    </div>
+    <div class="bottom-nav-item" data-page="profile" onclick="navigate('profile')">
+      <svg><use href="#icon-profile"/></svg>
+      <span id="navb-profile">Profile</span>
+    </div>
+  </nav>
+</div>
+
+<!-- ========== Modals ========== -->
+<!-- Add Relation Modal -->
+<div class="modal-overlay" id="modal-relation">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="rel-modal-title">Add Distribution Relation</h3>
+      <button class="modal-close" onclick="closeModal('modal-relation')"><svg><use href="#icon-close"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label id="lbl-rel-referrer">Referrer Name</label>
+        <input type="text" id="rel-referrer-name" placeholder="Referrer customer name">
+      </div>
+      <div class="form-group">
+        <label id="lbl-rel-referrer-phone">Referrer Phone</label>
+        <input type="tel" id="rel-referrer-phone" placeholder="Referrer phone number">
+      </div>
+      <div class="form-group">
+        <label id="lbl-rel-referred">Referred Name</label>
+        <input type="text" id="rel-referred-name" placeholder="Referred customer name">
+      </div>
+      <div class="form-group">
+        <label id="lbl-rel-referred-phone">Referred Phone</label>
+        <input type="tel" id="rel-referred-phone" placeholder="Referred phone number">
+      </div>
+      <div class="form-group">
+        <label id="lbl-rel-owner">Owner / Sales</label>
+        <select id="rel-owner-name" class="w-full">
+          <option value="">-- Select Sales --</option>
+        </select>
+      </div>
+      <div class="auth-error" id="rel-error" style="display:none"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-relation')" style="color:var(--text2)">Cancel</button>
+      <button class="btn btn-primary" onclick="saveRelation()" id="btn-save-relation">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Upload Receipt Modal -->
+<div class="modal-overlay" id="modal-receipt">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Upload Receipt</h3>
+      <button class="modal-close" onclick="closeModal('modal-receipt')"><svg><use href="#icon-close"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Order</label>
+        <div id="receipt-order-info" style="font-size:0.9rem;color:var(--text2)">--</div>
+      </div>
+      <div class="form-group">
+        <label>Select Image</label>
+        <input type="file" id="receipt-file" accept="image/*" multiple>
+      </div>
+      <div id="receipt-preview" style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:0.5rem"></div>
+      <div class="auth-error" id="receipt-error" style="display:none;margin-top:0.75rem"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-receipt')" style="color:var(--text2)">Cancel</button>
+      <button class="btn btn-primary" onclick="uploadReceipt()" id="btn-upload-receipt">Upload</button>
+    </div>
+  </div>
+</div>
+
+<!-- View Receipts Modal -->
+<div class="modal-overlay" id="modal-view-receipts">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-header">
+      <h3>Order Receipts</h3>
+      <button class="modal-close" onclick="closeModal('modal-view-receipts')"><svg><use href="#icon-close"/></svg></button>
+    </div>
+    <div class="modal-body" id="view-receipts-body">
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ========== JavaScript ========== -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+/* ============================================================
+   Partner Distribution System - Main Application
+
+   ============================================================ */
+
+// ==================== Supabase Init ====================
+const SUPABASE_URL = 'https://pvrfqnffygusujsnxsct.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2cmZxbmZmeWd1c3Vqc254c2N0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5MTI3ODYsImV4cCI6MjA5MzQ4ODc4Nn0.BraQWWOse2ikRGb02_PEgqV3b0Umdch9ugMqoBe7jio';
+const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ==================== i18n ====================
+const i18n = {
+  en: {
+    appName:'Partner Distribution System',
+    subtitle:'',
+    loginTitle:'Sign In',
+    loginPhone:'Phone Number',
+    loginPassword:'Password',
+    loginBtn:'Sign In',
+    loginSwitch:'Don\'t have an account?',
+    loginSwitchLink:'Register',
+    regTitle:'Create Account',
+    regName:'Full Name',
+    regPhone:'Phone Number',
+    regPassword:'Password (min 6 chars)',
+    regConfirm:'Confirm Password',
+    regBtn:'Create Account',
+    regSwitch:'Already have an account?',
+    regSwitchLink:'Sign In',
+    navDashboard:'Dashboard',
+    navOrders:'Referral Orders',
+    navReferrals:'My Referrals',
+    navProfile:'Profile',
+    navAdmin:'ADMIN',
+    dashTitle:'Dashboard',
+    dashDesc:'Welcome back! Here\'s your distribution overview.',
+    dashRecent:'Recent Referral Orders',
+    dashEmpty:'No referral orders yet.',
+    ordersTitle:'Referral Orders',
+    ordersDesc:'Orders placed by your referred customers.',
+    ordersEmpty:'No referral orders yet.',
+    refTitle:'My Referrals',
+    refDesc:'Customers you have referred.',
+    refList:'Referred Customers',
+    profileTitle:'Profile',
+    profileDesc:'Manage your account information.',
+    profName:'Full Name',
+    profPhone:'Phone',
+    profRole:'Role',
+    profPassword:'New Password',
+    profConfirm:'Confirm New Password',
+    profSave:'Save Changes',
+    profLogout:'Sign Out',
+    relAdd:'Add Relation',
+    relReferrer:'Referrer Name',
+    relReferrerPhone:'Referrer Phone',
+    relReferred:'Referred Name',
+    relReferredPhone:'Referred Phone',
+    relOwner:'Owner / Sales',
+    relStatus:'Status',
+    relActions:'Actions',
+    relActive:'Active',
+    relInactive:'Inactive',
+    relDeactivate:'Deactivate',
+    relDelete:'Delete',
+    receiptsTitle:'Order Receipts',
+    receiptsDesc:'Upload and manage order receipts for distributors.',
+    distTitle:'Manage Distributors',
+    distDesc:'View and manage all partner accounts.',
+    uploadReceipt:'Upload Receipt',
+    viewReceipts:'View',
+    noReceipts:'No receipts uploaded.',
+    save:'Save',
+    cancel:'Cancel',
+    loading:'Loading...',
+    noResults:'No results',
+    phSearchCountry:'Search country / code...',
+    phMinChars:'at least 6 characters',
+    phReenter:'re-enter password',
+    phLeaveBlank:'leave blank to keep current',
+    phReenterNew:'re-enter new password',
+    phReferrerName:'Referrer customer name',
+    phReferrerPhone:'Referrer phone number',
+    phReferredName:'Referred customer name',
+    phReferredPhone:'Referred phone number',
+    error:'Error',
+    success:'Success',
+    darkMode:'Dark',
+    lightMode:'Light',
+    passwordMismatch:'Passwords do not match',
+    passwordTooShort:'Password must be at least 6 characters',
+    phoneRequired:'Phone number is required',
+    nameRequired:'Full name is required',
+    registerSuccess:'Registration successful! Please sign in.',
+    loginSuccess:'Login successful!',
+    saveSuccess:'Saved successfully!',
+    uploadSuccess:'Upload successful!',
+    deleteSuccess:'Deleted successfully!',
+    confirmDeactivate:'Confirm deactivate this relation?',
+    amountCNY:'Amount(CNY)',
+    refChainLabel:'Your Referrer',
+    orderNo:'Order No.',
+    customer:'Customer',
+    date:'Date',
+    status:'Status',
+    actions:'Actions',
+    goodsCNY:'Goods(CNY)',
+    handlingCNY:'Handling(CNY)',
+    netCNY:'Net(CNY)',
+    ordersCount:'Orders',
+    receipts:'Receipts',
+    uploaded:'Uploaded',
+    selectSales:'-- Select Sales --',
+    referredRequired:'Referred name is required',
+    noRelations:'No relations found.',
+    noOrders:'No orders found.',
+    noDistributors:'No distributors found.',
+    selectFile:'Please select at least one file',
+    uploadFailed:'Upload failed',
+    saveFailed:'Failed to save',
+    orderLabel:'Order',
+    roleAdmin:'Admin',
+    roleDistributor:'Distributor',
+    enable:'Enable',
+    disable:'Disable',
+    name:'Name',
+    created:'Created',
+    receiptCount:'receipt(s)',
+    noReceiptsShort:'No receipts',
+    me:'Me',
+    navAdminRelations:'Distribution Relations',
+    navAdminReceipts:'Order Receipts',
+    navAdminDistributors:'Manage Distributors',
+    relPageTitle:'Distribution Relations',
+    relPageDesc:'Bind or unbind distributor referral relationships.',
+  },
+  zh: {
+    appName:'HKPepMed 合作伙伴系统',
+    subtitle:'肽类与生物技术分销平台',
+    loginTitle:'登录',
+    loginPhone:'手机号码',
+    loginPassword:'密码',
+    loginBtn:'登录',
+    loginSwitch:'还没有账号？',
+    loginSwitchLink:'注册',
+    regTitle:'创建账号',
+    regName:'真实姓名',
+    regPhone:'手机号码',
+    regPassword:'密码（至少6位）',
+    regConfirm:'确认密码',
+    regBtn:'创建账号',
+    regSwitch:'已有账号？',
+    regSwitchLink:'登录',
+    navDashboard:'仪表盘',
+    navOrders:'推荐订单',
+    navReferrals:'我的推荐',
+    navProfile:'个人中心',
+    navAdmin:'管理员',
+    dashTitle:'仪表盘',
+    dashDesc:'欢迎回来！这是您的分销概览。',
+    dashRecent:'近期推荐订单',
+    dashEmpty:'暂无推荐订单。',
+    ordersTitle:'推荐订单',
+    ordersDesc:'您推荐的客户所下的订单。',
+    ordersEmpty:'暂无推荐订单。',
+    refTitle:'我的推荐',
+    refDesc:'您推荐的用户。',
+    refList:'推荐客户列表',
+    profileTitle:'个人中心',
+    profileDesc:'管理您的账号信息。',
+    profName:'真实姓名',
+    profPhone:'手机号码',
+    profRole:'角色',
+    profPassword:'新密码',
+    profConfirm:'确认新密码',
+    profSave:'保存修改',
+    profLogout:'退出登录',
+    relAdd:'添加关系',
+    relReferrer:'推荐人姓名',
+    relReferrerPhone:'推荐人电话',
+    relReferred:'被推荐人姓名',
+    relReferredPhone:'被推荐人电话',
+    relOwner:'归属销售',
+    relStatus:'状态',
+    relActions:'操作',
+    relActive:'生效中',
+    relInactive:'已停用',
+    relDeactivate:'停用',
+    relDelete:'删除',
+    receiptsTitle:'订单凭证',
+    receiptsDesc:'为分销商上传和管理订单凭证。',
+    distTitle:'管理分销商',
+    distDesc:'查看和管理所有合作伙伴账号。',
+    uploadReceipt:'上传凭证',
+    viewReceipts:'查看',
+    noReceipts:'尚未上传凭证。',
+    save:'保存',
+    cancel:'取消',
+    loading:'加载中...',
+    noResults:'无结果',
+    phSearchCountry:'搜索国家 / 区号...',
+    phMinChars:'至少6位字符',
+    phReenter:'再次输入密码',
+    phLeaveBlank:'留空表示不修改',
+    phReenterNew:'再次输入新密码',
+    phReferrerName:'推荐人客户姓名',
+    phReferrerPhone:'推荐人电话',
+    phReferredName:'被推荐人客户姓名',
+    phReferredPhone:'被推荐人电话',
+    error:'错误',
+    success:'成功',
+    darkMode:'深色',
+    lightMode:'浅色',
+    passwordMismatch:'两次输入的密码不一致',
+    passwordTooShort:'密码至少需要6位',
+    phoneRequired:'请输入手机号码',
+    nameRequired:'请输入真实姓名',
+    registerSuccess:'注册成功！请登录。',
+    loginSuccess:'登录成功！',
+    saveSuccess:'保存成功！',
+    uploadSuccess:'上传成功！',
+    deleteSuccess:'删除成功！',
+    confirmDeactivate:'确认停用此推荐关系？',
+    amountCNY:'金额(人民币)',
+    refChainLabel:'我的推荐人',
+    orderNo:'订单号',
+    customer:'客户',
+    date:'日期',
+    status:'状态',
+    actions:'操作',
+    goodsCNY:'商品金额(元)',
+    handlingCNY:'手续费(元)',
+    netCNY:'净额(元)',
+    ordersCount:'订单',
+    receipts:'凭证',
+    uploaded:'上传于',
+    selectSales:'-- 选择销售 --',
+    referredRequired:'被推荐人姓名不能为空',
+    noRelations:'暂无推荐关系。',
+    noOrders:'暂无订单。',
+    noDistributors:'暂无分销商。',
+    selectFile:'请选择至少一个文件',
+    uploadFailed:'上传失败',
+    saveFailed:'保存失败',
+    orderLabel:'订单',
+    roleAdmin:'管理员',
+    roleDistributor:'分销商',
+    enable:'启用',
+    disable:'禁用',
+    name:'姓名',
+    created:'创建时间',
+    receiptCount:'张凭证',
+    noReceiptsShort:'无凭证',
+    me:'我',
+    navAdminRelations:'分销关系管理',
+    navAdminReceipts:'订单凭证',
+    navAdminDistributors:'管理分销商',
+    relPageTitle:'分销关系管理',
+    relPageDesc:'绑定或解绑分销推荐关系。',
+  }
+};
+
+let currentLang = 'en';
+let darkMode = false;
+
+function t(key) {
+  return (i18n[currentLang] && i18n[currentLang][key]) || key;
+}
+
+function applyLang() {
+  try {
+    const setText = (id, key) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = t(key);
+    };
+    const setPlaceholder = (id, key) => {
+      const el = document.getElementById(id);
+      if (el) el.placeholder = t(key);
+    };
+    // Auth screen
+    setText('auth-subtitle', 'subtitle');
+    setText('login-title', 'loginTitle');
+    setText('lbl-login-phone', 'loginPhone');
+    setText('lbl-login-password', 'loginPassword');
+    setText('login-btn-text', 'loginBtn');
+    setText('login-switch-text', 'loginSwitch');
+    setText('login-switch-link', 'loginSwitchLink');
+    setText('register-title', 'regTitle');
+    setText('lbl-reg-name', 'regName');
+    setText('lbl-reg-phone', 'regPhone');
+    setText('lbl-reg-password', 'regPassword');
+    setText('lbl-reg-confirm', 'regConfirm');
+    setText('register-btn-text', 'regBtn');
+    setText('register-switch-text', 'regSwitch');
+    setText('register-switch-link', 'regSwitchLink');
+    // Header
+    setText('header-app-name', 'appName');
+    // Nav
+    setText('nav-dashboard', 'navDashboard');
+    setText('nav-orders', 'navOrders');
+    setText('nav-referrals', 'navReferrals');
+    setText('nav-profile', 'navProfile');
+    // Pages
+    setText('dash-title', 'dashTitle');
+    setText('dash-desc', 'dashDesc');
+    setText('dash-recent-title', 'dashRecent');
+    setText('dash-empty', 'dashEmpty');
+    setText('orders-title', 'ordersTitle');
+    setText('orders-desc', 'ordersDesc');
+    setText('orders-empty-text', 'ordersEmpty');
+    setText('ref-title', 'refTitle');
+    setText('ref-desc', 'refDesc');
+    setText('ref-list-title', 'refList');
+    setText('profile-title', 'profileTitle');
+    setText('profile-desc', 'profileDesc');
+    setText('lbl-prof-name', 'profName');
+    setText('lbl-prof-phone', 'profPhone');
+    setText('lbl-prof-role', 'profRole');
+    setText('lbl-prof-password', 'profPassword');
+    setText('lbl-prof-confirm', 'profConfirm');
+    setText('prof-save-text', 'profSave');
+    setText('btn-logout', 'profLogout');
+    // Admin relations table headers
+    setText('rel-add-text', 'relAdd');
+    setText('rel-th-referrer', 'relReferrer');
+    setText('rel-th-referred', 'relReferred');
+    setText('rel-th-phone', 'relReferredPhone');
+    setText('rel-th-sales', 'relOwner');
+    setText('rel-th-status', 'relStatus');
+    setText('rel-th-actions', 'relActions');
+    // Bottom nav
+    setText('navb-dashboard', 'navDashboard');
+    setText('navb-orders', 'navOrders');
+    setText('navb-referrals', 'navReferrals');
+    setText('navb-profile', 'navProfile');
+    // Admin sidebar section title
+    setText('admin-section-title', 'navAdmin');
+    // Admin nav items (span ids)
+    setText('nav-admin-rel-text', 'navAdminRelations');
+    setText('nav-admin-rcp-text', 'navAdminReceipts');
+    setText('nav-admin-dist-text', 'navAdminDistributors');
+    // Admin page titles
+    setText('rel-page-title', 'relPageTitle');
+    setText('rel-page-desc', 'relPageDesc');
+    setText('receipts-page-title', 'receiptsTitle');
+    setText('receipts-page-desc', 'receiptsDesc');
+    setText('dist-page-title', 'distTitle');
+    setText('dist-page-desc', 'distDesc');
+    // Admin receipts table headers
+    setText('receipts-th-order', 'orderNo');
+    setText('receipts-th-customer', 'customer');
+    setText('receipts-th-amount', 'amountCNY');
+    setText('receipts-th-receipts', 'receipts');
+    setText('receipts-th-actions', 'actions');
+    // Admin distributors table headers
+    setText('dist-th-name', 'name');
+    setText('dist-th-phone', 'profPhone');
+    setText('dist-th-role', 'profRole');
+    setText('dist-th-status', 'relStatus');
+    setText('dist-th-created', 'created');
+    setText('dist-th-actions', 'actions');
+    // Relation modal
+    setText('lbl-rel-referrer', 'relReferrer');
+    setText('lbl-rel-referrer-phone', 'relReferrerPhone');
+    setText('lbl-rel-referred', 'relReferred');
+    setText('lbl-rel-referred-phone', 'relReferredPhone');
+    setText('lbl-rel-owner', 'relOwner');
+    setText('btn-save-relation', 'save');
+    // Placeholders
+    setPlaceholder('reg-password', 'phMinChars');
+    setPlaceholder('reg-confirm', 'phReenter');
+    setPlaceholder('prof-password', 'phLeaveBlank');
+    setPlaceholder('prof-confirm', 'phReenterNew');
+    setPlaceholder('rel-referrer-name', 'phReferrerName');
+    setPlaceholder('rel-referrer-phone', 'phReferrerPhone');
+    setPlaceholder('rel-referred-name', 'phReferredName');
+    setPlaceholder('rel-referred-phone', 'phReferredPhone');
+    // Country search inputs (no ids)
+    document.querySelectorAll('.country-search input').forEach(el => {
+      el.placeholder = t('phSearchCountry');
+    });
+  } catch(e) { console.warn('applyLang error:', e); }
+}
+
+function toggleLang() {
+  currentLang = currentLang === 'en' ? 'zh' : 'en';
+  localStorage.setItem('hkpmed_lang', currentLang);
+  applyLang();
+  // Re-render current page
+  if (currentUser) renderCurrentPage();
+}
+
+function toggleDarkMode() {
+  darkMode = !darkMode;
+  document.body.classList.toggle('dark', darkMode);
+  document.body.classList.toggle('light', !darkMode);
+  const appIcon = document.getElementById('darkmode-icon');
+  if (appIcon) appIcon.innerHTML = darkMode ? '<use href="#icon-sun"/>' : '<use href="#icon-moon"/>';
+  const authText = document.getElementById('auth-theme-text');
+  if (authText) authText.textContent = darkMode ? t('darkMode') : t('lightMode');
+  localStorage.setItem('hkpmed_dark', darkMode ? '1' : '0');
+}
+
+// ==================== State ====================
+let currentUser = null;      // auth.user()
+let currentProfile = null;   // distributor_profiles row
+let allOrders = [];          // orders from ERP
+let allRelations = [];       // distribution_relations
+let allProfiles = [];       // all distributor_profiles (admin)
+let currentPage = 'dashboard';
+
+// ==================== Auth Helpers ====================
+function phoneToEmail(countryCode, phone) {
+  return `${countryCode.replace('+','')}${phone}@partner.hkpmed.com`;
+}
+
+function showLogin() {
+  document.getElementById('login-card').classList.remove('hidden');
+  document.getElementById('register-card').classList.add('hidden');
+  hideMsg('login-error');
+  hideMsg('login-success');
+}
+function showRegister() {
+  document.getElementById('login-card').classList.add('hidden');
+  document.getElementById('register-card').classList.remove('hidden');
+  hideMsg('register-error');
+  hideMsg('register-success');
+}
+function showMsg(id, text) {
+  const el = document.getElementById(id);
+  el.textContent = text;
+  el.style.display = 'block';
+}
+function hideMsg(id) {
+  const el = document.getElementById(id);
+  if (el) el.style.display = 'none';
+}
+
+// ==================== Country Selector ====================
+const COUNTRIES = [
+  {code:'86',name:'China',flag:'🇨🇳',short:'CN'},
+  {code:'852',name:'Hong Kong',flag:'🇭🇰',short:'HK'},
+  {code:'853',name:'Macau',flag:'🇲🇴',short:'MO'},
+  {code:'886',name:'Taiwan',flag:'🇹🇼',short:'TW'},
+  {code:'1',name:'United States',flag:'🇺🇸',short:'US'},
+  {code:'1',name:'Canada',flag:'🇨🇦',short:'CA'},
+  {code:'44',name:'United Kingdom',flag:'🇬🇧',short:'UK'},
+  {code:'61',name:'Australia',flag:'🇦🇺',short:'AU'},
+  {code:'64',name:'New Zealand',flag:'🇳🇿',short:'NZ'},
+  {code:'81',name:'Japan',flag:'🇯🇵',short:'JP'},
+  {code:'82',name:'South Korea',flag:'🇰🇷',short:'KR'},
+  {code:'65',name:'Singapore',flag:'🇸🇬',short:'SG'},
+  {code:'60',name:'Malaysia',flag:'🇲🇾',short:'MY'},
+  {code:'66',name:'Thailand',flag:'🇹🇭',short:'TH'},
+  {code:'63',name:'Philippines',flag:'🇵🇭',short:'PH'},
+  {code:'62',name:'Indonesia',flag:'🇮🇩',short:'ID'},
+  {code:'84',name:'Vietnam',flag:'🇻🇳',short:'VN'},
+  {code:'855',name:'Cambodia',flag:'🇰🇭',short:'KH'},
+  {code:'95',name:'Myanmar',flag:'🇲🇲',short:'MM'},
+  {code:'91',name:'India',flag:'🇮🇳',short:'IN'},
+  {code:'94',name:'Sri Lanka',flag:'🇱🇰',short:'LK'},
+  {code:'92',name:'Pakistan',flag:'🇵🇰',short:'PK'},
+  {code:'880',name:'Bangladesh',flag:'🇧🇩',short:'BD'},
+  {code:'977',name:'Nepal',flag:'🇳🇵',short:'NP'},
+  {code:'960',name:'Maldives',flag:'🇲🇻',short:'MV'},
+  {code:'93',name:'Afghanistan',flag:'🇦🇫',short:'AF'},
+  {code:'98',name:'Iran',flag:'🇮🇷',short:'IR'},
+  {code:'966',name:'Saudi Arabia',flag:'🇸🇦',short:'SA'},
+  {code:'971',name:'United Arab Emirates',flag:'🇦🇪',short:'AE'},
+  {code:'974',name:'Qatar',flag:'🇶🇦',short:'QA'},
+  {code:'965',name:'Kuwait',flag:'🇰🇼',short:'KW'},
+  {code:'968',name:'Oman',flag:'🇴🇲',short:'OM'},
+  {code:'973',name:'Bahrain',flag:'🇧🇭',short:'BH'},
+  {code:'964',name:'Iraq',flag:'🇮🇶',short:'IQ'},
+  {code:'962',name:'Jordan',flag:'🇯🇴',short:'JO'},
+  {code:'961',name:'Lebanon',flag:'🇱🇧',short:'LB'},
+  {code:'970',name:'Palestine',flag:'🇵🇸',short:'PS'},
+  {code:'972',name:'Israel',flag:'🇮🇱',short:'IL'},
+  {code:'20',name:'Egypt',flag:'🇪🇬',short:'EG'},
+  {code:'27',name:'South Africa',flag:'🇿🇦',short:'ZA'},
+  {code:'234',name:'Nigeria',flag:'🇳🇬',short:'NG'},
+  {code:'233',name:'Ghana',flag:'🇬🇭',short:'GH'},
+  {code:'254',name:'Kenya',flag:'🇰🇪',short:'KE'},
+  {code:'255',name:'Tanzania',flag:'🇹🇿',short:'TZ'},
+  {code:'212',name:'Morocco',flag:'🇲🇦',short:'MA'},
+  {code:'216',name:'Tunisia',flag:'🇹🇳',short:'TN'},
+  {code:'49',name:'Germany',flag:'🇩🇪',short:'DE'},
+  {code:'33',name:'France',flag:'🇫🇷',short:'FR'},
+  {code:'39',name:'Italy',flag:'🇮🇹',short:'IT'},
+  {code:'34',name:'Spain',flag:'🇪🇸',short:'ES'},
+  {code:'31',name:'Netherlands',flag:'🇳🇱',short:'NL'},
+  {code:'41',name:'Switzerland',flag:'🇨🇭',short:'CH'},
+  {code:'43',name:'Austria',flag:'🇦🇹',short:'AT'},
+  {code:'32',name:'Belgium',flag:'🇧🇪',short:'BE'},
+  {code:'46',name:'Sweden',flag:'🇸🇪',short:'SE'},
+  {code:'47',name:'Norway',flag:'🇳🇴',short:'NO'},
+  {code:'45',name:'Denmark',flag:'🇩🇰',short:'DK'},
+  {code:'358',name:'Finland',flag:'🇫🇮',short:'FI'},
+  {code:'351',name:'Portugal',flag:'🇵🇹',short:'PT'},
+  {code:'30',name:'Greece',flag:'🇬🇷',short:'GR'},
+  {code:'36',name:'Hungary',flag:'🇭🇺',short:'HU'},
+  {code:'48',name:'Poland',flag:'🇵🇱',short:'PL'},
+  {code:'420',name:'Czech Republic',flag:'🇨🇿',short:'CZ'},
+  {code:'421',name:'Slovakia',flag:'🇸🇰',short:'SK'},
+  {code:'40',name:'Romania',flag:'🇷🇴',short:'RO'},
+  {code:'385',name:'Croatia',flag:'🇭🇷',short:'HR'},
+  {code:'386',name:'Slovenia',flag:'🇸🇮',short:'SI'},
+  {code:'389',name:'North Macedonia',flag:'🇲🇰',short:'MK'},
+  {code:'381',name:'Serbia',flag:'🇷🇸',short:'RS'},
+  {code:'359',name:'Bulgaria',flag:'🇧🇬',short:'BG'},
+  {code:'380',name:'Ukraine',flag:'🇺🇦',short:'UA'},
+  {code:'7',name:'Russia',flag:'🇷🇺',short:'RU'},
+  {code:'375',name:'Belarus',flag:'🇧🇾',short:'BY'},
+  {code:'370',name:'Lithuania',flag:'🇱🇹',short:'LT'},
+  {code:'371',name:'Latvia',flag:'🇱🇻',short:'LV'},
+  {code:'372',name:'Estonia',flag:'🇪🇪',short:'EE'},
+  {code:'90',name:'Turkey',flag:'🇹🇷',short:'TR'},
+  {code:'994',name:'Azerbaijan',flag:'🇦🇿',short:'AZ'},
+  {code:'998',name:'Uzbekistan',flag:'🇺🇿',short:'UZ'},
+  {code:'996',name:'Kyrgyzstan',flag:'🇰🇬',short:'KG'},
+  {code:'993',name:'Turkmenistan',flag:'🇹🇲',short:'TM'},
+  {code:'992',name:'Tajikistan',flag:'🇹🇯',short:'TJ'},
+  {code:'374',name:'Armenia',flag:'🇦🇲',short:'AM'},
+  {code:'373',name:'Moldova',flag:'🇲🇩',short:'MD'},
+  {code:'378',name:'San Marino',flag:'🇸🇲',short:'SM'},
+  {code:'377',name:'Monaco',flag:'🇲🇨',short:'MC'},
+  {code:'352',name:'Luxembourg',flag:'🇱🇺',short:'LU'},
+  {code:'376',name:'Andorra',flag:'🇦🇩',short:'AD'},
+  {code:'350',name:'Gibraltar',flag:'🇬🇮',short:'GI'},
+  {code:'357',name:'Cyprus',flag:'🇨🇾',short:'CY'},
+  {code:'354',name:'Iceland',flag:'🇮🇸',short:'IS'},
+  {code:'298',name:'Faroe Islands',flag:'🇫🇴',short:'FO'},
+  {code:'353',name:'Ireland',flag:'🇮🇪',short:'IE'},
+  {code:'52',name:'Mexico',flag:'🇲🇽',short:'MX'},
+  {code:'55',name:'Brazil',flag:'🇧🇷',short:'BR'},
+  {code:'54',name:'Argentina',flag:'🇦🇷',short:'AR'},
+  {code:'56',name:'Chile',flag:'🇨🇱',short:'CL'},
+  {code:'51',name:'Peru',flag:'🇵🇪',short:'PE'},
+  {code:'57',name:'Colombia',flag:'🇨🇴',short:'CO'},
+  {code:'58',name:'Venezuela',flag:'🇻🇪',short:'VE'},
+  {code:'591',name:'Bolivia',flag:'🇧🇴',short:'BO'},
+  {code:'593',name:'Ecuador',flag:'🇪🇨',short:'EC'},
+  {code:'595',name:'Paraguay',flag:'🇵🇾',short:'PY'},
+  {code:'598',name:'Uruguay',flag:'🇺🇾',short:'UY'},
+  {code:'53',name:'Cuba',flag:'🇨🇺',short:'CU'},
+  {code:'505',name:'Nicaragua',flag:'🇳🇮',short:'NI'},
+  {code:'503',name:'El Salvador',flag:'🇸🇻',short:'SV'},
+  {code:'502',name:'Guatemala',flag:'🇬🇹',short:'GT'},
+  {code:'504',name:'Honduras',flag:'🇭🇳',short:'HN'},
+  {code:'506',name:'Costa Rica',flag:'🇨🇷',short:'CR'},
+  {code:'507',name:'Panama',flag:'🇵🇦',short:'PA'},
+  {code:'509',name:'Haiti',flag:'🇭🇹',short:'HT'},
+  {code:'1-809',name:'Dominican Republic',flag:'🇩🇴',short:'DO'},
+  {code:'1-876',name:'Jamaica',flag:'🇯🇲',short:'JM'},
+  {code:'1-868',name:'Trinidad & Tobago',flag:'🇹🇹',short:'TT'},
+  {code:'264',name:'Namibia',flag:'🇳🇦',short:'NA'},
+  {code:'260',name:'Zambia',flag:'🇿🇲',short:'ZM'},
+  {code:'263',name:'Zimbabwe',flag:'🇿🇼',short:'ZW'},
+  {code:'267',name:'Botswana',flag:'🇧🇼',short:'BW'},
+  {code:'268',name:'Eswatini',flag:'🇸🇿',short:'SZ'},
+  {code:'265',name:'Malawi',flag:'🇲🇼',short:'MW'},
+  {code:'232',name:'Sierra Leone',flag:'🇸🇱',short:'SL'},
+  {code:'225',name:'Ivory Coast',flag:'🇨🇮',short:'CI'},
+  {code:'226',name:'Burkina Faso',flag:'🇧🇫',short:'BF'},
+  {code:'228',name:'Togo',flag:'🇹🇬',short:'TG'},
+  {code:'229',name:'Benin',flag:'🇧🇯',short:'BJ'},
+  {code:'227',name:'Niger',flag:'🇳🇪',short:'NE'},
+  {code:'221',name:'Senegal',flag:'🇸🇳',short:'SN'},
+  {code:'222',name:'Mauritania',flag:'🇲🇷',short:'MR'},
+  {code:'243',name:'DR Congo',flag:'🇨🇩',short:'CD'},
+  {code:'241',name:'Gabon',flag:'🇬🇦',short:'GA'},
+  {code:'240',name:'Equatorial Guinea',flag:'🇬🇶',short:'GQ'},
+  {code:'236',name:'Central African Rep.',flag:'🇨🇫',short:'CF'},
+  {code:'235',name:'Chad',flag:'🇹🇩',short:'TD'},
+  {code:'231',name:'Liberia',flag:'🇱🇷',short:'LR'},
+  {code:'245',name:'Guinea-Bissau',flag:'🇬🇼',short:'GW'},
+  {code:'230',name:'Mauritius',flag:'🇲🇺',short:'MU'},
+  {code:'261',name:'Madagascar',flag:'🇲🇬',short:'MG'},
+  {code:'269',name:'Comoros',flag:'🇰🇲',short:'KM'},
+  {code:'250',name:'Rwanda',flag:'🇷🇼',short:'RW'},
+  {code:'257',name:'Burundi',flag:'🇧🇮',short:'BI'},
+  {code:'249',name:'Sudan',flag:'🇸🇩',short:'SD'},
+  {code:'211',name:'South Sudan',flag:'🇸🇸',short:'SS'},
+  {code:'218',name:'Libya',flag:'🇱🇾',short:'LY'},
+  {code:'213',name:'Algeria',flag:'🇩🇿',short:'DZ'},
+  {code:'244',name:'Angola',flag:'🇦🇴',short:'AO'},
+  {code:'266',name:'Lesotho',flag:'🇱🇸',short:'LS'},
+  {code:'258',name:'Mozambique',flag:'🇲🇿',short:'MZ'},
+  {code:'670',name:'East Timor',flag:'🇹🇱',short:'TL'},
+  {code:'675',name:'Papua New Guinea',flag:'🇵🇬',short:'PG'},
+  {code:'672',name:'Antarctica',flag:'🇦🇶',short:'AQ'},
+  {code:'676',name:'Tonga',flag:'🇹🇴',short:'TO'},
+  {code:'678',name:'Vanuatu',flag:'🇻🇺',short:'VU'},
+  {code:'683',name:'Samoa',flag:'🇼🇸',short:'WS'},
+  {code:'685',name:'Samoa',flag:'🇼🇸',short:'WS'},
+  {code:'682',name:'Cook Islands',flag:'🇨🇰',short:'CK'},
+  {code:'687',name:'New Caledonia',flag:'🇳🇨',short:'NC'},
+  {code:'686',name:'Kiribati',flag:'🇰🇮',short:'KI'},
+  {code:'688',name:'Tuvalu',flag:'🇹🇻',short:'TV'},
+  {code:'691',name:'Micronesia',flag:'🇫🇲',short:'FM'},
+  {code:'692',name:'Marshall Islands',flag:'🇲🇭',short:'MH'},
+  {code:'850',name:'North Korea',flag:'🇰🇵',short:'KP'},
+  {code:'856',name:'Laos',flag:'🇱🇦',short:'LA'},
+  {code:'673',name:'Brunei',flag:'🇧🇳',short:'BN'},
+  {code:'674',name:'Nauru',flag:'🇳🇷',short:'NR'},
+  {code:'679',name:'Fiji',flag:'🇫🇯',short:'FJ'},
+  {code:'677',name:'Solomon Islands',flag:'🇸🇧',short:'SB'},
+  {code:'680',name:'Palau',flag:'🇵🇼',short:'PW'},
+  {code:'599',name:'Netherlands Antilles',flag:'🇧🇶',short:'AN'},
+  {code:'850',name:'North Korea',flag:'🇰🇵',short:'KP'},
+].filter((v,i,a)=>a.findIndex(c=>c.code===v.code&&c.name===v.name)===i);
+
+function initCountrySelector(wrapId, hiddenId) {
+  const wrap = document.getElementById(wrapId);
+  if (!wrap) return;
+  const trigger = wrap.querySelector('.country-selector-trigger');
+  const display = trigger.querySelector('.cs-display');
+  const dropdown = wrap.querySelector('.country-dropdown');
+  const searchInput = dropdown.querySelector('input');
+  const listEl = dropdown.querySelector('.country-list');
+  const hidden = document.getElementById(hiddenId);
+  let activeIdx = -1;
+
+  function renderList(filter = '') {
+    const q = filter.toLowerCase().trim();
+    const items = q ? COUNTRIES.filter(c =>
+      c.name.toLowerCase().includes(q) ||
+      c.short.toLowerCase().includes(q) ||
+      c.code.includes(q) ||
+      ('+' + c.code).includes(q)
+    ) : COUNTRIES;
+    listEl.innerHTML = '';
+    if (items.length === 0) {
+      listEl.innerHTML = '<div class="no-result">' + t('noResults') + '</div>';
+      return;
+    }
+    items.forEach((c, i) => {
+      const div = document.createElement('div');
+      div.className = 'country-item';
+      div.innerHTML = `<span>${c.flag}</span><span class="cc">+${c.code}</span><span class="cn">${c.name}</span>`;
+      div.addEventListener('click', () => select(c));
+      div.addEventListener('mouseenter', () => { setActive(i); });
+      listEl.appendChild(div);
+    });
+    activeIdx = -1;
+  }
+
+  function setActive(idx) {
+    const items = listEl.querySelectorAll('.country-item');
+    items.forEach(el => el.classList.remove('active'));
+    activeIdx = idx;
+    if (items[idx]) {
+      items[idx].classList.add('active');
+      items[idx].scrollIntoView({ block: 'nearest' });
+    }
+  }
+
+  function select(c) {
+    const label = `+${c.code} ${c.short}`;
+    display.textContent = label;
+    hidden.value = '+' + c.code;
+    close();
+  }
+
+  function open() {
+    wrap.classList.add('open');
+    searchInput.value = '';
+    renderList();
+    setTimeout(() => searchInput.focus(), 0);
+  }
+
+  function close() {
+    wrap.classList.remove('open');
+    activeIdx = -1;
+  }
+
+  trigger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    wrap.classList.contains('open') ? close() : open();
+  });
+
+  searchInput.addEventListener('input', () => renderList(searchInput.value));
+  searchInput.addEventListener('keydown', (e) => {
+    const items = listEl.querySelectorAll('.country-item');
+    if (e.key === 'ArrowDown') { e.preventDefault(); setActive(Math.min(activeIdx + 1, items.length - 1)); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); setActive(Math.max(activeIdx - 1, 0)); }
+    else if (e.key === 'Enter' && activeIdx >= 0 && items[activeIdx]) { e.preventDefault(); items[activeIdx].click(); }
+    else if (e.key === 'Escape') { close(); }
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!wrap.contains(e.target)) close();
+  });
+}
+
+initCountrySelector('login-country-wrap', 'login-country-code');
+initCountrySelector('reg-country-wrap', 'reg-country-code');
+
+// ==================== Auth: Register ====================
+document.getElementById('register-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  hideMsg('register-error');
+  const name = document.getElementById('reg-name').value.trim();
+  const countryCode = document.getElementById('reg-country-code').value;
+  const phone = document.getElementById('reg-phone').value.trim();
+  const password = document.getElementById('reg-password').value;
+  const confirm = document.getElementById('reg-confirm').value;
+  if (!name) return showMsg('register-error', t('nameRequired'));
+  if (!phone) return showMsg('register-error', t('phoneRequired'));
+  if (password.length < 6) return showMsg('register-error', t('passwordTooShort'));
+  if (password !== confirm) return showMsg('register-error', t('passwordMismatch'));
+
+  const email = phoneToEmail(countryCode, phone);
+  const btn = document.getElementById('btn-register');
+  const spinner = document.getElementById('register-spinner');
+  btn.disabled = true;
+  spinner.style.display = 'inline-block';
+
+  try {
+    const { data, error } = await _supabase.auth.signUp({ email, password });
+    if (error) throw error;
+    // Insert distributor profile
+    const uid = data.user.id;
+    const { error: profErr } = await _supabase.from('distributor_profiles').insert({
+      id: uid,
+      real_name: name,
+      phone: countryCode + phone,
+      role: 'distributor'
+    });
+    if (profErr) console.warn('Profile insert warning:', profErr);
+    showMsg('register-success', t('registerSuccess'));
+    setTimeout(showLogin, 1500);
+  } catch(err) {
+    showMsg('register-error', err.message || t('error'));
+  } finally {
+    btn.disabled = false;
+    spinner.style.display = 'none';
+  }
+});
+
+// ==================== Auth: Login ====================
+document.getElementById('login-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  hideMsg('login-error');
+  const countryCode = document.getElementById('login-country-code').value;
+  const phone = document.getElementById('login-phone').value.trim();
+  const password = document.getElementById('login-password').value;
+  if (!phone) return showMsg('login-error', t('phoneRequired'));
+  if (!password) return showMsg('login-error', 'Password is required');
+
+  const email = phoneToEmail(countryCode, phone);
+  const btn = document.getElementById('btn-login');
+  const spinner = document.getElementById('login-spinner');
+  btn.disabled = true;
+  spinner.style.display = 'inline-block';
+
+  try {
+    const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    // onAuthStateChange will handle redirect
+  } catch(err) {
+    showMsg('login-error', err.message || t('error'));
+    btn.disabled = false;
+    spinner.style.display = 'none';
+  }
+});
+
+// ==================== Auth State ====================
+_supabase.auth.onAuthStateChange((event, session) => {
+  if (session && session.user) {
+    currentUser = session.user;
+    loadProfile();
+  } else {
+    currentUser = null;
+    showAuthScreen();
+  }
+});
+
+async function loadProfile() {
+  try {
+    const { data, error } = await _supabase
+      .from('distributor_profiles')
+      .select('*')
+      .eq('id', currentUser.id)
+      .maybeSingle();
+    if (error) throw error;
+    currentProfile = data;
+    if (!data) {
+      // Profile doesn't exist yet, create a default one
+      const { data: newProf, error: profErr } = await _supabase
+        .from('distributor_profiles')
+        .insert({ id: currentUser.id, role: 'distributor' })
+        .select('*')
+        .single();
+      if (!profErr && newProf) currentProfile = newProf;
+    }
+    showAppScreen();
+  } catch(err) {
+    console.error('loadProfile error:', err);
+    // Still show app screen even if profile fails, so user isn't stuck
+    showAppScreen();
+  }
+}
+
+function showAuthScreen() {
+  document.getElementById('screen-auth').style.display = 'flex';
+  document.getElementById('screen-app').style.display = 'none';
+}
+function showAppScreen() {
+  document.getElementById('screen-auth').style.display = 'none';
+  document.getElementById('screen-app').style.display = 'flex';
+  document.getElementById('header-username').textContent = currentProfile ? currentProfile.real_name : '--';
+  // Show/hide admin section
+  const isAdmin = currentProfile && currentProfile.role === 'admin';
+  document.getElementById('admin-section-title').style.display = isAdmin ? 'block' : 'none';
+  document.getElementById('nav-admin-relations').style.display = isAdmin ? 'flex' : 'none';
+  document.getElementById('nav-admin-receipts').style.display = isAdmin ? 'flex' : 'none';
+  document.getElementById('nav-admin-distributors').style.display = isAdmin ? 'flex' : 'none';
+  applyLang();
+  navigate('dashboard');
+  loadAllData();
+}
+
+async function logout() {
+  await _supabase.auth.signOut();
+}
+
+// ==================== Navigation ====================
+function navigate(page) {
+  currentPage = page;
+  // Update sidebar
+  document.querySelectorAll('.sidebar-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.page === page);
+  });
+  // Update bottom nav
+  document.querySelectorAll('.bottom-nav-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.page === page);
+  });
+  // Show page
+  document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+  const pageEl = document.getElementById('page-' + page);
+  if (pageEl) pageEl.classList.add('active');
+  closeSidebar();
+  renderCurrentPage();
+}
+function renderCurrentPage() {
+  switch(currentPage) {
+    case 'dashboard': renderDashboard(); break;
+    case 'orders': renderOrders(); break;
+    case 'referrals': renderReferrals(); break;
+    case 'profile': renderProfile(); break;
+    case 'admin-relations': renderAdminRelations(); break;
+    case 'admin-receipts': renderAdminReceipts(); break;
+    case 'admin-distributors': renderAdminDistributors(); break;
+  }
+}
+
+// ==================== Data Loading ====================
+async function loadAllData() {
+  try {
+    const [ordersRes, relsRes, profilesRes] = await Promise.all([
+      _supabase.from('orders').select('*').order('created_at',{ascending:false}),
+      _supabase.from('distribution_relations').select('*').eq('status','active'),
+      _supabase.from('distributor_profiles').select('*')
+    ]);
+    allOrders = ordersRes.data || [];
+    allRelations = relsRes.data || [];
+    allProfiles = profilesRes.data || [];
+    if (currentPage) renderCurrentPage();
+  } catch(err) {
+    showToast(t('error') + ': ' + err.message, 'error');
+  }
+}
+
+// ==================== Dashboard ====================
+async function renderDashboard() {
+  const phone = currentProfile.phone;
+  // Find who this user referred
+  const myReferrals = allRelations.filter(r => (r.referrer_customer_phone||'') === phone);
+  const referredNames = new Set(myReferrals.map(r => (r.referred_customer_name||'').trim().toLowerCase()));
+  const myOrders = allOrders.filter(o => referredNames.has((o.customer_name||'').trim().toLowerCase()));
+  const totalAmount = myOrders.reduce((s,o) => s + ((parseFloat(o.goods_cny)||0) - (parseFloat(o.handling_cny)||0)), 0);
+
+  document.getElementById('dash-stats').innerHTML = `
+    <div class="stat-card bg-accent">
+      <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+      <div class="stat-label">${t('refList')}</div>
+      <div class="stat-value">${myReferrals.length}</div>
+    </div>
+    <div class="stat-card bg-green">
+      <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+      <div class="stat-label">${t('ordersTitle')}</div>
+      <div class="stat-value">${myOrders.length}</div>
+    </div>
+    <div class="stat-card bg-warning">
+      <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+      <div class="stat-label">${t('amountCNY')}</div>
+      <div class="stat-value">¥${totalAmount.toFixed(2)}</div>
+    </div>
+  `;
+
+  // Recent orders table
+  // Aggregate by customer for recent summary
+  const custMap = {};
+  myOrders.forEach(o => {
+    const name = (o.customer_name||'--').trim();
+    if (!custMap[name]) custMap[name] = { count: 0, total: 0 };
+    custMap[name].count++;
+    custMap[name].total += (parseFloat(o.goods_cny)||0) - (parseFloat(o.handling_cny)||0);
+  });
+  const custList = Object.entries(custMap).sort((a,b) => b[1].total - a[1].total).slice(0, 10);
+
+  if (custList.length === 0) {
+    document.getElementById('dash-recent-body').innerHTML = `<div class="empty-state"><p>${t('dashEmpty')}</p></div>`;
+  } else {
+    document.getElementById('dash-recent-body').innerHTML = `
+      <div class="overflow-x-auto">
+        <table class="data-table">
+          <thead><tr>
+            <th>${t('customer')}</th><th>${t('ordersCount')}</th><th>${t('amountCNY')}</th>
+          </tr></thead>
+          <tbody>
+            ${custList.map(([name, d]) => `<tr>
+              <td>${esc(name)}</td>
+              <td>${d.count}</td>
+              <td class="font-semibold">¥${d.total.toFixed(2)}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>`;
+  }
+  }
+}
+
+// ==================== Orders ====================
+function renderOrders() {
+  const phone = currentProfile.phone;
+  const myReferrals = allRelations.filter(r => (r.referrer_customer_phone||'') === phone);
+  const referredNames = new Set(myReferrals.map(r => (r.referred_customer_name||'').trim().toLowerCase()));
+  const myOrders = allOrders.filter(o => referredNames.has((o.customer_name||'').trim().toLowerCase()));
+
+  if (myOrders.length === 0) {
+    document.getElementById('orders-tbody').innerHTML = '';
+    document.getElementById('orders-empty').classList.remove('hidden');
+    return;
+  }
+  document.getElementById('orders-empty').classList.add('hidden');
+
+  // Aggregate by customer
+  const custMap = {};
+  myOrders.forEach(o => {
+    const name = (o.customer_name||'--').trim();
+    if (!custMap[name]) custMap[name] = { count: 0, total: 0 };
+    custMap[name].count++;
+    custMap[name].total += (parseFloat(o.goods_cny)||0) - (parseFloat(o.handling_cny)||0);
+  });
+
+  document.getElementById('orders-thead').innerHTML = `<tr>
+    <th>${t('customer')}</th><th>${t('ordersCount')}</th><th>${t('amountCNY')}</th>
+  </tr>`;
+  document.getElementById('orders-tbody').innerHTML = Object.entries(custMap)
+    .sort((a,b) => b[1].total - a[1].total)
+    .map(([name, d]) => `<tr>
+      <td>${esc(name)}</td>
+      <td>${d.count}</td>
+      <td class="font-semibold">¥${d.total.toFixed(2)}</td>
+    </tr>`).join('');
+}
+
+// ==================== Referrals ====================
+function renderReferrals() {
+  const phone = currentProfile.phone;
+  // 找到我的推荐人（谁推荐了我）
+  const myReferrerRel = allRelations.find(r => (r.referred_customer_phone||'') === phone && (r.status||'active') === 'active');
+  const hasReferrer = !!(myReferrerRel && (myReferrerRel.referrer_customer_name || myReferrerRel.referrer_customer_phone));
+
+  // 渲染推荐人链条
+  const chainBar = document.getElementById('ref-chain-bar');
+  const chainNodes = document.getElementById('ref-chain-nodes');
+  if (hasReferrer) {
+    chainBar.style.display = 'block';
+    document.getElementById('ref-chain-label').textContent = t('refChainLabel');
+    const referrerName = esc(myReferrerRel.referrer_customer_name || myReferrerRel.referrer_customer_phone || '--');
+    chainNodes.innerHTML = `
+      <span class="ref-chain-node referrer">↗ ${referrerName}</span>
+      <span class="ref-chain-arrow">→</span>
+      <span class="ref-chain-node mine">${esc(currentProfile.real_name || t('me'))}</span>
+      <span class="ref-chain-arrow">→</span>
+      <span class="ref-chain-node">${t('navReferrals')}</span>
+    `;
+  } else {
+    chainBar.style.display = 'none';
+  }
+
+  const myReferrals = allRelations.filter(r => (r.referrer_customer_phone||'') === phone);
+  const referredNames = new Set(myReferrals.map(r => (r.referred_customer_name||'').trim().toLowerCase()));
+  const myOrders = allOrders.filter(o => referredNames.has((o.customer_name||'').trim().toLowerCase()));
+  const totalAmount = myOrders.reduce((s,o) => s + ((parseFloat(o.goods_cny)||0) - (parseFloat(o.handling_cny)||0)), 0);
+
+
+;
+
+  document.getElementById('ref-thead').innerHTML = `<tr>
+    <th>${t('refReferred')}</th><th>${t('relReferredPhone')}</th><th>${t('ordersCount')}</th><th>${t('amountCNY')}</th><th>${t('date')}</th>
+  </tr>`;
+  document.getElementById('ref-tbody').innerHTML = myReferrals.map(r => {
+    const name = (r.referred_customer_name||'').trim().toLowerCase();
+    const cOrders = allOrders.filter(o => (o.customer_name||'').trim().toLowerCase() === name);
+    const cAmount = cOrders.reduce((s,o) => s + ((parseFloat(o.goods_cny)||0)-(parseFloat(o.handling_cny)||0)), 0);
+    return `<tr>
+      <td>${esc(r.referred_customer_name||'--')}</td>
+      <td>${esc(r.referred_customer_phone||'--')}</td>
+      <td>${cOrders.length}</td>
+      <td>¥${cAmount.toFixed(2)}</td>
+      <td>${esc(fmtCN(r.created_at))}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ==================== Profile ====================
+function renderProfile() {
+  if (!currentProfile) return;
+  document.getElementById('prof-name').value = currentProfile.real_name || '';
+  document.getElementById('prof-phone').value = currentProfile.phone || '';
+  document.getElementById('prof-role').value = currentProfile.role === 'admin' ? t('roleAdmin') : t('navReferrals');
+  document.getElementById('prof-password').value = '';
+  document.getElementById('prof-confirm').value = '';
+  hideMsg('profile-error');
+  hideMsg('profile-success');
+}
+
+async function updateProfile() {
+  const pwd = document.getElementById('prof-password').value;
+  const confirm = document.getElementById('prof-confirm').value;
+  if (pwd && pwd !== confirm) return showMsg('profile-error', t('passwordMismatch'));
+  if (pwd && pwd.length < 6) return showMsg('profile-error', t('passwordTooShort'));
+  try {
+    if (pwd) {
+      const { error } = await _supabase.auth.updateUser({ password: pwd });
+      if (error) throw error;
+    }
+    showMsg('profile-success', t('saveSuccess'));
+    document.getElementById('prof-password').value = '';
+    document.getElementById('prof-confirm').value = '';
+  } catch(err) {
+    showMsg('profile-error', err.message || t('saveFailed'));
+  }
+}
+
+// ==================== Admin: Relations ====================
+function renderAdminRelations() {
+  const tbody = document.getElementById('rel-tbody');
+  if (allRelations.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:2rem">${t('noRelations')}</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = allRelations.map(r => {
+    const isActive = r.status === 'active';
+    return `<tr>
+      <td>${esc(r.referrer_customer_name||'--')}</td>
+      <td>${esc(r.referred_customer_name||'--')}</td>
+      <td>${esc(r.referred_customer_phone||'--')}</td>
+      <td>${esc(r.referrer_owner_name||'--')}</td>
+      <td><span class="badge ${isActive?'badge-green':'badge-red'}">${isActive?t('relActive'):t('relInactive')}</span></td>
+      <td>
+        ${isActive ? `<button class="btn btn-sm btn-danger" onclick="deactivateRelation('${r.id}')">${t('relDeactivate')}</button>` : ''}
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function openRelationModal() {
+  document.getElementById('rel-referrer-name').value = '';
+  document.getElementById('rel-referrer-phone').value = '';
+  document.getElementById('rel-referred-name').value = '';
+  document.getElementById('rel-referred-phone').value = '';
+  // Fill owner dropdown
+  const sel = document.getElementById('rel-owner-name');
+  sel.innerHTML = '<option value="">' + t('selectSales') + '</option>' +
+    allProfiles.filter(p => p.role === 'admin' || p.role === 'distributor').map(p =>
+      `<option value="${esc(p.real_name)}">${esc(p.real_name)}</option>`
+    ).join('');
+  hideMsg('rel-error');
+  openModal('modal-relation');
+}
+
+async function saveRelation() {
+  const referrerName = document.getElementById('rel-referrer-name').value.trim();
+  const referrerPhone = document.getElementById('rel-referrer-phone').value.trim();
+  const referredName = document.getElementById('rel-referred-name').value.trim();
+  const referredPhone = document.getElementById('rel-referred-phone').value.trim();
+  const ownerName = document.getElementById('rel-owner-name').value;
+  if (!referredName) return showMsg('rel-error', t('referredRequired'));
+  try {
+    const { error } = await _supabase.from('distribution_relations').insert({
+      referrer_customer_name: referrerName,
+      referrer_customer_phone: referrerPhone,
+      referred_customer_name: referredName,
+      referred_customer_phone: referredPhone,
+      referrer_owner_name: ownerName,
+      status: 'active'
+    });
+    if (error) throw error;
+    closeModal('modal-relation');
+    showToast(t('saveSuccess'), 'success');
+    loadAllData();
+  } catch(err) {
+    showMsg('rel-error', err.message || t('saveFailed'));
+  }
+}
+
+async function deactivateRelation(id) {
+  if (!confirm(t('confirmDeactivate'))) return;
+  try {
+    const { error } = await _supabase.from('distribution_relations').update({ status: 'inactive' }).eq('id', id);
+    if (error) throw error;
+    showToast(t('saveSuccess'), 'success');
+    loadAllData();
+  } catch(err) {
+    showToast(err.message, 'error');
+  }
+}
+
+// ==================== Admin: Receipts ====================
+let receiptOrderId = null;
+function renderAdminReceipts() {
+  // Show all orders that have distributor relations
+  const allRefNames = new Set(allRelations.map(r => (r.referred_customer_name||'').trim().toLowerCase()));
+  const relOrders = allOrders.filter(o => allRefNames.has((o.customer_name||'').trim().toLowerCase()));
+  const tbody = document.getElementById('receipts-tbody');
+  if (relOrders.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:2rem">${t('noOrders')}</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = relOrders.map(o => {
+    const net = ((parseFloat(o.goods_cny)||0) - (parseFloat(o.handling_cny)||0)).toFixed(2);
+    return `<tr>
+      <td>${esc(o.order_no||'--')}</td>
+      <td>${esc(o.customer_name||'--')}</td>
+      <td>¥${net}</td>
+      <td id="receipt-cell-${o.id}"><span class="text-muted">${t('loading')}</span></td>
+      <td>
+        <button class="btn btn-sm btn-outline" onclick="openUploadReceipt('${o.id}','${esc(o.order_no||'')}')">${t('uploadReceipt')}</button>
+        <button class="btn btn-sm btn-outline" onclick="viewReceipts('${o.id}')" style="margin-left:0.25rem">${t('viewReceipts')}</button>
+      </td>
+    </tr>`;
+  }).join('');
+  // Load receipt counts
+  loadReceiptCounts(relOrders.map(o => o.id));
+}
+
+async function loadReceiptCounts(orderIds) {
+  if (orderIds.length === 0) return;
+  const { data } = await _supabase.from('order_receipts').select('order_id').in('order_id', orderIds);
+  const counts = {};
+  (data||[]).forEach(r => { counts[r.order_id] = (counts[r.order_id]||0) + 1; });
+  orderIds.forEach(id => {
+    const el = document.getElementById('receipt-cell-' + id);
+    if (el) el.textContent = counts[id] ? `${counts[id]} ${t('receiptCount')}` : t('noReceiptsShort');
+  });
+}
+
+function openUploadReceipt(orderId, orderNo) {
+  receiptOrderId = orderId;
+  document.getElementById('receipt-order-info').textContent = `${t('orderLabel')}: ${orderNo}`;
+  document.getElementById('receipt-file').value = '';
+  document.getElementById('receipt-preview').innerHTML = '';
+  hideMsg('receipt-error');
+  openModal('modal-receipt');
+}
+
+document.getElementById('receipt-file').addEventListener('change', function() {
+  const preview = document.getElementById('receipt-preview');
+  preview.innerHTML = '';
+  Array.from(this.files).forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = document.createElement('img');
+      img.src = e.target.result;
+      img.style.cssText = 'width:80px;height:80px;object-fit:cover;border-radius:8px;border:1px solid var(--border)';
+      preview.appendChild(img);
+    };
+    reader.readAsDataURL(file);
+  });
+});
+
+async function uploadReceipt() {
+  const fileInput = document.getElementById('receipt-file');
+  if (!fileInput.files.length) return showMsg('receipt-error', t('selectFile'));
+  const btn = document.getElementById('btn-upload-receipt');
+  btn.disabled = true;
+  try {
+    const uploadedUrls = [];
+    for (const file of fileInput.files) {
+      const fileName = `receipts/${receiptOrderId}/${Date.now()}_${file.name}`;
+      const { data, error } = await _supabase.storage.from('receipts').upload(fileName, file);
+      if (error) throw error;
+      const { data: { publicUrl } } = _supabase.storage.from('receipts').getPublicUrl(fileName);
+      uploadedUrls.push(publicUrl);
+      await _supabase.from('order_receipts').insert({
+        order_id: receiptOrderId,
+        receipt_url: publicUrl,
+        uploaded_by: currentUser.id
+      });
+    }
+    closeModal('modal-receipt');
+    showToast(t('uploadSuccess'), 'success');
+    renderAdminReceipts();
+  } catch(err) {
+    showMsg('receipt-error', err.message || t('uploadFailed'));
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function viewReceipts(orderId) {
+  try {
+    const { data, error } = await _supabase.from('order_receipts').select('*').eq('order_id', orderId).order('uploaded_at',{ascending:false});
+    if (error) throw error;
+    const body = document.getElementById('view-receipts-body');
+    if (!data || data.length === 0) {
+      body.innerHTML = `<p class="text-muted">${t('noReceipts')}</p>`;
+    } else {
+      body.innerHTML = data.map(r => `
+        <div style="margin-bottom:1rem;padding:0.75rem;border:1px solid var(--border);border-radius:8px">
+          <img src="${r.receipt_url}" style="max-width:100%;border-radius:8px;cursor:pointer" onclick="window.open('${r.receipt_url}','_blank')">
+          <div style="font-size:0.8rem;color:var(--text2);margin-top:0.5rem">${t('uploaded')}: ${r.uploaded_at.substring(0,19).replace('T',' ')}</div>
+        </div>
+      `).join('');
+    }
+    openModal('modal-view-receipts');
+  } catch(err) {
+    showToast(err.message, 'error');
+  }
+}
+
+// ==================== Admin: Distributors ====================
+function renderAdminDistributors() {
+  const tbody = document.getElementById('distributors-tbody');
+  if (allProfiles.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:2rem">${t('noDistributors')}</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = allProfiles.map(p => `<tr>
+    <td>${esc(p.real_name||'--')}</td>
+    <td>${esc(p.phone||'--')}</td>
+    <td><span class="badge ${p.role==='admin'?'badge-blue':'badge-green'}">${p.role==='admin'?t('roleAdmin'):t('roleDistributor')}</span></td>
+    <td><span class="badge ${p.status==='active'?'badge-green':'badge-red'}">${p.status==='active'?t('relActive'):t('relInactive')}</span></td>
+    <td>${esc(fmtCN(p.created_at))}</td>
+    <td>
+      <button class="btn btn-sm ${p.status==='active'?'btn-danger':'btn-primary'}" onclick="toggleDistributorStatus('${p.id}','${p.status==='active'?'disabled':'active'}')">
+        ${p.status==='active'?t('disable'):t('enable')}
+      </button>
+    </td>
+  </tr>`).join('');
+}
+
+async function toggleDistributorStatus(id, newStatus) {
+  try {
+    const { error } = await _supabase.from('distributor_profiles').update({ status: newStatus }).eq('id', id);
+    if (error) throw error;
+    showToast(t('saveSuccess'), 'success');
+    loadAllData();
+  } catch(err) {
+    showToast(err.message, 'error');
+  }
+}
+
+// ==================== Modal / UI Helpers ====================
+function openModal(id) { document.getElementById(id).classList.add('active'); }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  const ov = document.getElementById('sidebar-overlay');
+  sb.classList.toggle('open');
+  ov.classList.toggle('active');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('active');
+}
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+// Convert UTC ISO string to China date string (YYYY-MM-DD)
+function fmtCN(iso) {
+  if (!iso) return '--';
+  const d = new Date(iso);
+  const cn = new Date(d.getTime() + 8 * 60 * 60 * 1000);
+  return cn.toISOString().substring(0,10);
+}
+
+// ==================== Toast ====================
+function showToast(msg, type='info') {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.innerHTML = `<span>${esc(msg)}</span>`;
+  container.appendChild(toast);
+  setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3000);
+}
+
+// ==================== Init ====================
+(function init() {
+  // Show auth screen immediately
+  showAuthScreen();
+  // Restore preferences
+  const savedLang = localStorage.getItem('hkpmed_lang');
+  if (savedLang) currentLang = savedLang;
+  const savedDark = localStorage.getItem('hkpmed_dark');
+  if (savedDark === '1') {
+    darkMode = true;
+    document.body.classList.add('dark');
+    document.body.classList.remove('light');
+    const appIcon = document.getElementById('darkmode-icon');
+    if (appIcon) appIcon.innerHTML = '<use href="#icon-sun"/>';
+  }
+  const authText = document.getElementById('auth-theme-text');
+  if (authText) authText.textContent = darkMode ? t('darkMode') : t('lightMode');
+  applyLang();
+  // Check existing session
+  _supabase.auth.getSession().then(({ data: { session } }) => {
+    if (session) {
+      currentUser = session.user;
+      loadProfile();
+    }
+  });
+})();
+</script>
+</body>
+</html>
